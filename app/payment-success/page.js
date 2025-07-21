@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '../components/Layout';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+
 
 export default function PaymentSuccessPage() {
   const router = useRouter();

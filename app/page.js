@@ -70,61 +70,28 @@ export default function Home() {
   return (
     <Layout>
       <Loader visible={loading} />
-      <div style={{ border: "2px solid red", padding: 8, margin: 8 }}>
-        <div className="bg-blue-600 text-white p-4 rounded-xl">
-          Tailwind class test (should be blue background, white text, rounded)
-        </div>
-        <div className="text-3xl font-bold text-red-600">
-          Tailwind text-3xl font-bold text-red-600
-        </div>
-        <div className="p-4 bg-green-200">Tailwind p-4 bg-green-200</div>
-        <div id="tailwind-debug" className="bg-yellow-300 text-black p-2 mt-2">
-          Tailwind debug block
-        </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-          setTimeout(() => {
-            const el = document.getElementById('tailwind-debug');
-            if (el) {
-              console.log('Tailwind debug computed styles:', window.getComputedStyle(el));
-            }
-          }, 1000);
-        `,
-          }}
-        />
-      </div>
+      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white py-16 px-6 md:px-16">
-        <div className="bg-blue-600 text-white p-4 rounded-xl">
-          ✅ Tailwind is working!
-        </div>
         <div className="container-custom flex flex-col-reverse md:flex-row items-center justify-between gap-12">
-          <div
-            className="md:w-1/2 text-center md:text-left"
-            data-aos="fade-right"
-          >
+          <div className="md:w-1/2 text-center md:text-left" data-aos="fade-right">
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-              <span className="inline-block text-5xl md:text-6xl">🛍️</span>{" "}
-              Discover <br className="hidden md:block" />
+              <span className="inline-block text-5xl md:text-6xl">🛍️</span> Discover <br className="hidden md:block" /> 
               Premium Products
             </h1>
             <p className="text-xl text-indigo-100 mb-8">
               Style, Quality & Elegance in Every Item — curated just for you.
             </p>
-            <Link
-              href="/categories"
-              className="btn bg-white text-indigo-700 hover:bg-indigo-100 px-8 py-3 rounded-md shadow-lg transition-all transform hover:scale-105"
-            >
+            <Link href="/categories" className="btn bg-white text-indigo-700 hover:bg-indigo-100 px-8 py-3 rounded-md shadow-lg transition-all transform hover:scale-105">
               🔎 Shop Now
             </Link>
           </div>
 
           <div className="md:w-1/2" data-aos="fade-left">
-            <img
-              src="https://i.pinimg.com/736x/a9/31/33/a93133a28f7aa1346c34a2cbcd8a5312.jpg"
-              alt="Hero Outfit"
-              className="rounded-xl shadow-xl w-full object-cover h-[400px]"
+            <img 
+              src="https://i.pinimg.com/736x/a9/31/33/a93133a28f7aa1346c34a2cbcd8a5312.jpg" 
+              alt="Hero Outfit" 
+              className="rounded-xl shadow-xl w-full object-cover h-[400px]" 
             />
           </div>
         </div>
