@@ -1,83 +1,87 @@
 "use client"
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
 export default function Header({ user, onLogout }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleMenuToggle = () => setMenuOpen((open) => !open);
-  const handleLogout = (e) => {
-    e.preventDefault();
-    if (onLogout) onLogout();
-  };
-
   return (
-    <nav className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-md">
-      <div className="container-custom py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            <span className="text-3xl">🛒</span> Scratch
+<header className="cosmic-header sticky top-0 z-50 bg-gradient-to-r from-[#8f6690] to-[#b278a8] bg-opacity-80 backdrop-blur-xl rounded-2xl shadow-md">
+<div className="container-custom py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-[#8D7DFA] to-[#C9BBF7] flex items-center justify-center shadow-[0_0_15px_rgba(141,125,250,0.5)] floating">
+              <span className="text-xl font-bold text-white">🚀</span>
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF6B8E] border-2 border-white"></div>
+            </div>
+            <span className="text-2xl font-bold tracking-wider text-white">COSMIC<span className="text-[#C9BBF7]">SHOP</span></span>
           </Link>
-        </div>
-        
-        <ul className="hidden md:flex gap-6 items-center">
-          <li><Link href="/" className="hover:text-indigo-200 transition-colors font-medium">Home</Link></li>
-          <li><Link href="/categories" className="hover:text-indigo-200 transition-colors font-medium">Categories</Link></li>
-          <li>
-            {user ? (
-              <Link href="/cart" className="hover:text-indigo-200 transition-colors font-medium">Cart</Link>
-            ) : (
-              <a href="#" id="cartToast" className="hover:text-indigo-200 transition-colors font-medium">Cart</a>
-            )}
-          </li>
-          <li><Link href="/about" className="hover:text-indigo-200 transition-colors font-medium">About Us</Link></li>
-          <li><Link href="/contact" className="hover:text-indigo-200 transition-colors font-medium">Contact</Link></li>
-        </ul>
-        
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <button
-              id="menuButton"
-              className="p-2 hover:bg-indigo-700 rounded-full transition-colors"
-              onClick={handleMenuToggle}
-              aria-label="User menu"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="nav-link text-white hover:text-[#C9BBF7] transition-colors">
+              Home
+            </Link>
+            <Link href="/categories" className="nav-link text-white hover:text-[#C9BBF7] transition-colors">
+              Categories
+            </Link>
+            <Link href="/products" className="nav-link text-white hover:text-[#C9BBF7] transition-colors">
+              Products
+            </Link>
+            <Link href="/about" className="nav-link text-white hover:text-[#C9BBF7] transition-colors">
+              About
+            </Link>
+            <Link href="/contact" className="nav-link text-white hover:text-[#C9BBF7] transition-colors">
+              Contact
+            </Link>
+          </nav>
+          
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
+            <Link href="/cart" className="relative p-2 rounded-full hover:bg-[#483C7A] transition-colors">
+              <span className="sr-only">Cart</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-            </button>
+              {/* Cart badge */}
+              <span className="absolute -top-1 -right-1 bg-[#FF6B8E] text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+            </Link>
             
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 text-gray-700 dark:text-gray-200 py-1 border border-gray-200 dark:border-gray-700">
-                {user ? (
-                  <>
-                    <Link href="/users/profile" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">👤 Profile</Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      🚪 Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="block px-4 py-2 text-sm text-gray-400 cursor-not-allowed">👤 Profile</div>
-                    <Link href="/users/login" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">🔑 Login</Link>
-                    <Link href="/users/signup" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">📝 Signup</Link>
-                  </>
-                )}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <Link href="/users/profile" className="flex items-center space-x-2 p-2 rounded-full bg-[#483C7A] hover:bg-[#5D4E8C] transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#8D7DFA] to-[#9E91FF] flex items-center justify-center text-white font-bold">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="hidden md:inline text-white">{user.name || 'User'}</span>
+                </Link>
+                <button 
+                  onClick={onLogout} 
+                  className="hidden md:block btn btn-secondary text-sm py-2"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/users/login" className="btn btn-primary text-sm py-2">
+                  Login
+                </Link>
+                <Link href="/users/signup" className="hidden md:block btn btn-secondary text-sm py-2">
+                  Sign Up
+                </Link>
               </div>
             )}
+            
+            {/* Mobile menu button */}
+            <button className="md:hidden p-2 rounded-full hover:bg-[#483C7A] transition-colors">
+              <span className="sr-only">Open menu</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
-          
-          {/* Mobile menu button */}
-          <button className="md:hidden p-2 rounded-md hover:bg-indigo-700 transition-colors" onClick={() => {}}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 } 

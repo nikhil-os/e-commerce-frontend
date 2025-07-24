@@ -3,78 +3,130 @@
 @tailwind utilities;
 
 :root {
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --secondary: #10b981;
-  --accent: #f97316;
-  --background: #ffffff;
-  --foreground: #171717;
-  --gray-light: #f3f4f6;
-  --gray-medium: #9ca3af;
-  --gray-dark: #4b5563;
-  --danger: #ef4444;
-  --success: #22c55e;
-  --warning: #f59e0b;
+  /* Space Galaxy Theme Colors */
+  --primary: #8D7DFA;
+  --primary-dark: #5D4E8C;
+  --secondary: #C9BBF7;
+  --accent: #9E91FF;
+  --background: #5D4E8C;
+  --foreground: #FFFFFF;
+  --gray-light: #9E91FF;
+  --gray-medium: #7A6BC7;
+  --gray-dark: #483C7A;
+  --danger: #FF6B8E;
+  --success: #7AFFB5;
+  --warning: #FFCC66;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  /* Glow Effects */
+  --glow-purple: 0 0 15px rgba(141, 125, 250, 0.5);
+  --glow-accent: 0 0 20px rgba(158, 145, 255, 0.6);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #111827;
-    --foreground: #f9fafb;
-    --gray-light: #1f2937;
-    --gray-medium: #6b7280;
-    --gray-dark: #9ca3af;
+    --background: #3A3159;
+    --foreground: #FFFFFF;
+    --gray-light: #8D7DFA;
+    --gray-medium: #5D4E8C;
+    --gray-dark: #3A3159;
   }
 }
 
 @layer base {
   body {
-    @apply bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply text-white;
+    font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(135deg, #7c527c 0%, #a5689a 40%, #53375d 70%, #422d50 100%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='white' filter='url(%23grain)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    pointer-events: none;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    @apply font-bold tracking-wide uppercase;
+    background: linear-gradient(135deg, #FFFFFF 0%, #C9BBF7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 10px rgba(201, 187, 247, 0.3);
   }
   
   h1 {
-    @apply text-4xl md:text-5xl mb-6;
+    @apply text-4xl md:text-5xl mb-6 leading-tight;
+    letter-spacing: 0.05em;
   }
   
   h2 {
-    @apply text-3xl md:text-4xl mb-4;
+    @apply text-3xl md:text-4xl mb-4 leading-tight;
+    letter-spacing: 0.04em;
   }
   
   h3 {
-    @apply text-2xl md:text-3xl mb-3;
+    @apply text-2xl md:text-3xl mb-3 leading-tight;
+    letter-spacing: 0.03em;
+  }
+  
+  a {
+    @apply text-[#C9BBF7] hover:text-[#9E91FF] transition-colors duration-300;
+    text-shadow: 0 0 8px rgba(201, 187, 247, 0.3);
   }
 }
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-md font-medium transition-colors;
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_15px_rgba(158,145,255,0.6)] text-center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
   
   .btn-primary {
-    @apply bg-indigo-600 hover:bg-indigo-700 text-white;
+    @apply bg-[#8D7DFA] hover:bg-[#9E91FF] text-white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
   
   .btn-secondary {
-    @apply bg-emerald-600 hover:bg-emerald-700 text-white;
+    @apply bg-[#C9BBF7] hover:bg-[#D7CDFA] text-[#3A3159];
   }
   
   .btn-accent {
-    @apply bg-orange-500 hover:bg-orange-600 text-white;
+    @apply bg-gradient-to-r from-[#8D7DFA] to-[#9E91FF] hover:from-[#9E91FF] hover:to-[#8D7DFA] text-white;
   }
   
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300;
+    @apply bg-[#6A5BA6] rounded-2xl shadow-lg overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all duration-300;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+  }
+  
+  .glass-card {
+    @apply bg-opacity-20 bg-white backdrop-blur-md rounded-2xl border border-white border-opacity-20;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
   
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100;
+    @apply w-full px-5 py-3 rounded-full bg-[#483C7A] border border-[#8D7DFA] focus:border-[#C9BBF7] text-white placeholder-[#9E91FF] focus:outline-none focus:ring-2 focus:ring-[#9E91FF] transition-all duration-300;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .container-custom {
@@ -82,7 +134,45 @@
   }
   
   .gradient-bg {
-    @apply bg-gradient-to-br from-indigo-600 to-purple-600;
+    @apply bg-gradient-to-br from-[#5D4E8C] to-[#3A3159];
+  }
+  
+  .cosmic-header {
+    @apply bg-gradient-to-r from-[#5D4E8C] to-[#3A3159] shadow-lg;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cosmic-footer {
+    @apply bg-[#3A3159] text-white border-t border-[#8D7DFA] border-opacity-30;
+  }
+  
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .glow {
+    filter: drop-shadow(0 0 8px rgba(201, 187, 247, 0.6));
+  }
+  
+  .hover-glow:hover {
+    filter: drop-shadow(0 0 8px rgba(201, 187, 247, 0.8));
+  }
+  
+  .neumorphic {
+    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2), 
+                -8px -8px 16px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
   }
 }
 

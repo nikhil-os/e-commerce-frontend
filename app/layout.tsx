@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata: Metadata = { 
   title: "Scratch - Premium E-Commerce Store",
   description: "Shop the latest fashion and lifestyle products",
 };
