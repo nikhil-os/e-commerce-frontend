@@ -181,180 +181,334 @@ export default function CheckoutPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-[#8f6690] to-[#b278a8] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8f6690] mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading checkout...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-[#8f6690] to-[#b278a8] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Error</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-[#8f6690] text-white px-6 py-3 rounded-full hover:bg-[#7a5579] transition-all duration-300"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      {/* Existing Addresses */}
-      {addresses.length > 0 && (
-        <div id="existing-address-section" className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Select Address</h3>
-          {addresses.map((addr, i) => (
-            <label key={i} className="block mb-2">
-              <input
-                type="radio"
-                name="selectedAddress"
-                value={i}
-                checked={selectedAddress === i}
-                onChange={() => setSelectedAddress(i)}
-              />
-              {addr.fullName}, {addr.street}, {addr.city}, {addr.state},{" "}
-              {addr.zip}
-            </label>
-          ))}
-        </div>
-      )}
-      {/* New Address Form */}
-      <form
-        onSubmit={handleFormSubmit}
-        className="mt-8 bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto space-y-4"
-      >
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          📬 Add New Address
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              placeholder="John Doe"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.fullName}
-              onChange={handleFormChange}
-            />
+      <div className="min-h-screen bg-gradient-to-br from-[#8f6690] to-[#b278a8] py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2">🛒 Checkout</h1>
+            <p className="text-white/80 text-lg">
+              Review your order and complete your purchase
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Number
-            </label>
-            <input
-              type="text"
-              name="mobile"
-              placeholder="9876543210"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.mobile}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Street Address
-            </label>
-            <input
-              type="text"
-              name="street"
-              placeholder="123 Main St"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.street}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <input
-              type="text"
-              name="city"
-              placeholder="Mumbai"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.city}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              State
-            </label>
-            <input
-              type="text"
-              name="state"
-              placeholder="Maharashtra"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.state}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Zip Code
-            </label>
-            <input
-              type="text"
-              name="zip"
-              placeholder="400001"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.zip}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Country
-            </label>
-            <input
-              type="text"
-              name="country"
-              placeholder="India"
-              required
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={form.country}
-              onChange={handleFormChange}
-            />
-          </div>
-        </div>
-        <div className="flex items-center mt-4">
-          <input
-            type="checkbox"
-            name="isDefault"
-            id="isDefault"
-            className="mr-2"
-            checked={form.isDefault}
-            onChange={handleFormChange}
-          />
-          <label htmlFor="isDefault" className="text-sm text-gray-700">
-            Make this my default address
-          </label>
-        </div>
-        <div className="text-right">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
-          >
-            💾 Save Address
-          </button>
-        </div>
-      </form>
-      {/* Bill Summary Section */}
-      <div className="max-w-2xl mx-auto mt-10 p-4 bg-white shadow rounded">
-        <h2 className="text-2xl font-bold mb-4">🧾 Bill Summary</h2>
-        {cartItems.map((item, idx) => (
-          <div key={idx} className="flex justify-between mb-2">
-            <div>
-              <p className="font-semibold">{item.product.name}</p>
-              <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Address Selection */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Existing Addresses */}
+              {addresses.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-2xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    📍 Delivery Address
+                  </h3>
+                  <div className="space-y-3">
+                    {addresses.map((addr, i) => (
+                      <label
+                        key={i}
+                        className={`block cursor-pointer transition-all duration-300 ${
+                          selectedAddress === i
+                            ? "transform scale-[1.02]"
+                            : "hover:transform hover:scale-[1.01]"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="selectedAddress"
+                          value={i}
+                          checked={selectedAddress === i}
+                          onChange={() => setSelectedAddress(i)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`border-2 rounded-xl p-4 transition-all duration-300 ${
+                            selectedAddress === i
+                              ? "border-[#8f6690] bg-gradient-to-r from-[#8f6690]/10 to-[#b278a8]/10 shadow-lg"
+                              : "border-gray-200 hover:border-[#8f6690]/50 hover:bg-gray-50"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800">
+                                {addr.fullName}
+                              </h4>
+                              <p className="text-gray-600 text-sm mt-1">
+                                {addr.street}, {addr.city}, {addr.state}{" "}
+                                {addr.zip}
+                              </p>
+                              <p className="text-gray-500 text-sm">
+                                📱 {addr.mobile}
+                              </p>
+                              {addr.isDefault && (
+                                <span className="inline-block bg-[#8f6690] text-white text-xs px-2 py-1 rounded-full mt-2">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              className={`w-6 h-6 rounded-full border-2 mt-1 transition-all duration-300 ${
+                                selectedAddress === i
+                                  ? "border-[#8f6690] bg-[#8f6690]"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {selectedAddress === i && (
+                                <div className="w-full h-full rounded-full bg-white scale-[0.4]"></div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* New Address Form */}
+              <div className="bg-white rounded-2xl shadow-2xl p-6">
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    📬 Add New Address
+                  </h2>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        placeholder="John Doe"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.fullName}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Mobile Number
+                      </label>
+                      <input
+                        type="text"
+                        name="mobile"
+                        placeholder="9876543210"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.mobile}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Street Address
+                      </label>
+                      <input
+                        type="text"
+                        name="street"
+                        placeholder="123 Main St"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.street}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        placeholder="Mumbai"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.city}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        placeholder="Maharashtra"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.state}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Zip Code
+                      </label>
+                      <input
+                        type="text"
+                        name="zip"
+                        placeholder="400001"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.zip}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        name="country"
+                        placeholder="India"
+                        required
+                        className="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:outline-none focus:border-[#8f6690] transition-colors duration-300"
+                        value={form.country}
+                        onChange={handleFormChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center pt-4">
+                    <input
+                      type="checkbox"
+                      name="isDefault"
+                      id="isDefault"
+                      className="w-4 h-4 text-[#8f6690] border-gray-300 rounded focus:ring-[#8f6690] mr-3"
+                      checked={form.isDefault}
+                      onChange={handleFormChange}
+                    />
+                    <label
+                      htmlFor="isDefault"
+                      className="text-sm text-gray-700"
+                    >
+                      Make this my default address
+                    </label>
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-[#8f6690] to-[#b278a8] text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]"
+                    >
+                      💾 Save Address
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <p>₹{item.product.price * item.quantity}</p>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-2xl p-6 sticky top-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                  🧾 Order Summary
+                </h2>
+
+                <div className="space-y-4 mb-6">
+                  {cartItems.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between pb-3 border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 text-sm">
+                          {item.product.name}
+                        </h4>
+                        <p className="text-gray-500 text-xs">
+                          Qty: {item.quantity} × ₹{item.product.price}
+                        </p>
+                      </div>
+                      <p className="font-bold text-[#8f6690]">
+                        ₹{item.product.price * item.quantity}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-2 mb-6">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="font-semibold">₹{total}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Delivery Fee:</span>
+                    <span className="font-semibold">₹50</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total:</span>
+                      <span className="text-[#8f6690]">₹{total + 50}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="w-full bg-gradient-to-r from-[#8f6690] to-[#b278a8] text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  onClick={handlePayment}
+                  disabled={loading || selectedAddress === null}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <span>🚀</span>
+                      <span>Proceed to Payment</span>
+                    </div>
+                  )}
+                </button>
+
+                {selectedAddress === null && addresses.length > 0 && (
+                  <p className="text-red-500 text-sm text-center mt-2">
+                    Please select a delivery address
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
-        ))}
-        <hr className="my-3" />
-        <p className="text-md">Subtotal: ₹{total}</p>
-        <p className="text-md">Delivery Fee: ₹50</p>
-        <p className="text-lg font-bold mt-2">Total: ₹{total + 50}</p>
-        <button
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          type="button"
-          onClick={handlePayment}
-        >
-          Confirm Payment
-        </button>
+        </div>
       </div>
     </Layout>
   );
