@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import Loader from "./components/Loader";
 import ProductCard from "./components/ProductCard";
 import Link from "next/link";
+import { useAuth } from "./contexts/AuthContext";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -62,15 +63,26 @@ export default function Home() {
     }, 1000);
   }, []);
 
-  const handleAddToCart = (product, quantity) => {
-    console.log(`Added ${quantity} of ${product.name} to cart`);
-    // Implement cart logic here
+  const { addToCart, fetchCartData } = useAuth();
+
+  const handleAddToCart = async (product, quantity) => {
+    try {
+      const result = await addToCart(product._id, quantity);
+      if (result.success) {
+        alert(`Added ${quantity} of ${product.name} to cart`);
+      } else {
+        alert(result.message || "Failed to add item to cart");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Failed to add item to cart. Please try again.");
+    }
   };
 
   return (
     <Layout>
       <Loader visible={loading} />
-      
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden ">
         {/* Background elements */}
@@ -89,7 +101,8 @@ export default function Home() {
                 <span className="text-[#8D7DFA]">Premium Products</span>
               </h1>
               <p className="text-xl text-[#C9BBF7] mb-8 max-w-lg">
-                Explore our universe of high-quality items, curated across galaxies just for you.
+                Explore our universe of high-quality items, curated across
+                galaxies just for you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <Link href="/products" className="btn btn-primary">
@@ -103,10 +116,10 @@ export default function Home() {
             <div className="md:w-1/2 relative">
               <div className="relative">
                 <div className="absolute -inset-4 bg-[#8D7DFA] opacity-20 blur-xl rounded-full"></div>
-                <img 
-                  src="https://i.pinimg.com/736x/a9/31/33/a93133a28f7aa1346c34a2cbcd8a5312.jpg" 
-                  alt="Hero Image" 
-                  className="relative rounded-2xl shadow-xl w-full object-cover h-[400px] z-10" 
+                <img
+                  src="https://i.pinimg.com/736x/a9/31/33/a93133a28f7aa1346c34a2cbcd8a5312.jpg"
+                  alt="Hero Image"
+                  className="relative rounded-2xl shadow-xl w-full object-cover h-[400px] z-10"
                 />
                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-[#C9BBF7] bg-opacity-20 backdrop-blur-md rounded-2xl rotate-12 border border-white border-opacity-20 floating z-0"></div>
                 <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-[#8D7DFA] bg-opacity-20 backdrop-blur-md rounded-full border border-white border-opacity-20 floating z-0"></div>
@@ -123,18 +136,20 @@ export default function Home() {
             <div className="flex items-center justify-between mb-10">
               <div>
                 <h2 className="mb-2">Featured Products</h2>
-                <p className="text-[#C9BBF7]">Handpicked cosmic treasures for your collection</p>
+                <p className="text-[#C9BBF7]">
+                  Handpicked cosmic treasures for your collection
+                </p>
               </div>
               <Link href="/products" className="btn btn-secondary">
                 View All
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map(product => (
-                <ProductCard 
-                  key={product._id} 
-                  product={product} 
-                  onAddToCart={handleAddToCart} 
+              {products.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
                 />
               ))}
             </div>
@@ -153,7 +168,8 @@ export default function Home() {
             <div className="text-center mb-12">
               <h2 className="mb-4">Explore Categories</h2>
               <p className="text-[#C9BBF7] max-w-2xl mx-auto">
-                Discover our carefully curated collections across different cosmic realms
+                Discover our carefully curated collections across different
+                cosmic realms
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -161,38 +177,62 @@ export default function Home() {
               <Link href="/categories/womens">
                 <div className="glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group">
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">👗</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
+                      👗
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Women's Fashion</h3>
-                  <p className="text-[#C9BBF7] text-sm">Elegant styles for every occasion</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Women's Fashion
+                  </h3>
+                  <p className="text-[#C9BBF7] text-sm">
+                    Elegant styles for every occasion
+                  </p>
                 </div>
               </Link>
               {/* ...other category cards... */}
               <Link href="/categories/mens">
                 <div className="glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group">
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">👔</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
+                      👔
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Men's Collection</h3>
-                  <p className="text-[#C9BBF7] text-sm">Contemporary styles for men</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Men's Collection
+                  </h3>
+                  <p className="text-[#C9BBF7] text-sm">
+                    Contemporary styles for men
+                  </p>
                 </div>
               </Link>
               <Link href="/categories/accessories">
                 <div className="glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group">
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">👜</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
+                      👜
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Accessories</h3>
-                  <p className="text-[#C9BBF7] text-sm">Complete your look with style</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Accessories
+                  </h3>
+                  <p className="text-[#C9BBF7] text-sm">
+                    Complete your look with style
+                  </p>
                 </div>
               </Link>
               <Link href="/categories/footwear">
                 <div className="glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group">
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">👟</span>
+                    <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
+                      👟
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Footwear</h3>
-                  <p className="text-[#C9BBF7] text-sm">Step into comfort and style</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Footwear
+                  </h3>
+                  <p className="text-[#C9BBF7] text-sm">
+                    Step into comfort and style
+                  </p>
                 </div>
               </Link>
             </div>
@@ -207,41 +247,82 @@ export default function Home() {
             <div className="text-center mb-12">
               <h2 className="mb-4">Why Choose Us</h2>
               <p className="text-[#C9BBF7] max-w-2xl mx-auto">
-                We offer an out-of-this-world shopping experience with stellar benefits
+                We offer an out-of-this-world shopping experience with stellar
+                benefits
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Feature 1 */}
               <div className="card p-6 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#C9BBF7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-[#C9BBF7]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Quality Products</h3>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Quality Products
+                </h3>
                 <p className="text-[#C9BBF7]">
-                  We source only the highest quality products from across the universe
+                  We source only the highest quality products from across the
+                  universe
                 </p>
               </div>
               {/* ...other features... */}
               <div className="card p-6 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#C9BBF7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-[#C9BBF7]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Fast Delivery</h3>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Fast Delivery
+                </h3>
                 <p className="text-[#C9BBF7]">
                   Warp-speed shipping to get your products to you quickly
                 </p>
               </div>
               <div className="card p-6 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#C9BBF7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-[#C9BBF7]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Secure Payments</h3>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Secure Payments
+                </h3>
                 <p className="text-[#C9BBF7]">
                   Your transactions are protected by advanced security protocols
                 </p>
@@ -250,7 +331,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* Newsletter Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
         {/* Background */}
@@ -262,9 +343,13 @@ export default function Home() {
         {/* Foggy Glass Card */}
         <div className="relative z-10 max-w-2xl w-full mx-auto">
           <div className="backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 flex flex-col items-center gap-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">Join Our Cosmic Community</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+              Join Our Cosmic Community
+            </h2>
             <p className="text-lg md:text-xl text-[#C9BBF7] max-w-2xl mb-6">
-              Subscribe to our newsletter and be the first to receive exclusive offers, interstellar product drops, and cosmic updates straight to your inbox.
+              Subscribe to our newsletter and be the first to receive exclusive
+              offers, interstellar product drops, and cosmic updates straight to
+              your inbox.
             </p>
             <form className="w-full max-w-xl flex flex-col sm:flex-row items-center gap-4">
               <input
@@ -282,9 +367,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-
-
     </Layout>
   );
 }
