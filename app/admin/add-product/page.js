@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout";
 
 export default function AddProductPage() {
@@ -59,11 +59,14 @@ export default function AddProductPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/products", {
-        method: "POST",
-        body: formData,
-        credentials: "include", // Important for admin authentication
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/admin/add-product",
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include", // Important for admin authentication
+        }
+      );
 
       const data = await response.json();
 
@@ -92,6 +95,21 @@ export default function AddProductPage() {
     <Layout>
       <main className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
         <h2 className="text-2xl font-bold mb-4">➕ Add New Product</h2>
+
+        {/* Display success message */}
+        {successMessage && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {successMessage}
+          </div>
+        )}
+
+        {/* Display error message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="mb-4">
             <label className="block font-medium mb-1">Product Name</label>
@@ -132,9 +150,18 @@ export default function AddProductPage() {
               onChange={handleChange}
               className="w-full border px-4 py-2 rounded"
               required
+              disabled={loading && categories.length === 0}
             >
-              {/* Map categories from API here */}
-              <option value="">Select Category</option>
+              <option value="">
+                {loading && categories.length === 0
+                  ? "Loading categories..."
+                  : "Select Category"}
+              </option>
+              {categories.map((category) => (
+                <option key={category._id} value={category.slug}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
           <div className="mb-4">
@@ -161,9 +188,14 @@ export default function AddProductPage() {
           </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={loading}
+            className={`px-4 py-2 rounded text-white ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Add Product
+            {loading ? "Adding Product..." : "Add Product"}
           </button>
         </form>
       </main>
