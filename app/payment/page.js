@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Layout from "../components/Layout";
+import { useToast } from "../contexts/ToastContext";
 
 const paymentMethods = [
   {
@@ -37,6 +38,7 @@ const paymentMethods = [
 export default function PaymentPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const toast = useToast();
   const [selected, setSelected] = useState("");
   const [orderId, setOrderId] = useState("");
   const [orderDetails, setOrderDetails] = useState(null);
@@ -88,7 +90,7 @@ export default function PaymentPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selected) {
-      alert("Please select a payment method");
+      toast.warning("⚠️ Please select a payment method");
       return;
     }
 
@@ -121,7 +123,7 @@ export default function PaymentPage() {
         if (response.ok || data.success) {
           router.push("/payment-success?orderId=" + orderId + "&method=cod");
         } else {
-          alert(data.message || "Payment failed");
+          toast.error(data.message || "💳 Payment failed");
         }
       } else {
         // For online payments, create Razorpay order
@@ -226,7 +228,7 @@ export default function PaymentPage() {
       }
     } catch (error) {
       console.error("Payment error:", error);
-      alert("Payment failed. Please try again.");
+      toast.error("💳 Payment failed. Please try again.");
       setProcessingPayment(false);
     }
   };
@@ -254,11 +256,11 @@ export default function PaymentPage() {
           `/payment-success?orderId=${orderId}&method=${selected}&paymentId=${razorpayResponse.razorpay_payment_id}`
         );
       } else {
-        alert("Payment verification failed. Please contact support.");
+        toast.error("Payment verification failed. Please contact support.");
       }
     } catch (error) {
       console.error("Payment verification error:", error);
-      alert("Payment verification failed. Please contact support.");
+      toast.error("Payment verification failed. Please contact support.");
     } finally {
       setProcessingPayment(false);
     }

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Layout from "../../components/Layout";
 import ProductCard from "../../components/ProductCard";
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function ProductsByCategoryPage() {
   const params = useParams();
@@ -11,6 +12,7 @@ export default function ProductsByCategoryPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useAuth();
+  const toast = useToast();
 
   // Fallback products in case API fails
   const fallbackProducts = [
@@ -41,13 +43,13 @@ export default function ProductsByCategoryPage() {
     try {
       const result = await addToCart(product._id, quantity);
       if (result.success) {
-        alert(`Added ${quantity} of ${product.name} to cart`);
+        toast.success(`🛒 Added ${quantity} of ${product.name} to cart`);
       } else {
-        alert(result.message || "Failed to add item to cart");
+        toast.error(result.message || "Failed to add item to cart");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("Failed to add item to cart. Please try again.");
+      toast.error("Failed to add item to cart. Please try again.");
     }
   };
 

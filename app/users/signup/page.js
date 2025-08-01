@@ -5,9 +5,9 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
 } from "firebase/auth";
-// import { auth } from '@/firebase/config'; // Import auth from your config
 import { auth } from "../../firebase/config";
-
+import { useToast } from "../../contexts/ToastContext";
+import LocationPicker from "../../components/LocationPicker";
 import Layout from "../../components/Layout";
 import Link from "next/link";
 
@@ -19,17 +19,18 @@ export default function SignupPage() {
     otp: "",
     password: "",
   });
+  const [location, setLocation] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verified, setVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const toast = useToast();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const generateRecaptcha = () => {
-    // Ensure this runs only on the client
     if (typeof window !== "undefined" && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
@@ -52,10 +53,13 @@ export default function SignupPage() {
       const result = await signInWithPhoneNumber(auth, form.phone, appVerifier);
       setConfirmationResult(result);
       setOtpSent(true);
-      alert("OTP sent successfully!");
+      toast.show("📱 OTP sent successfully to your phone!", "success");
     } catch (error) {
       console.error("Error sending OTP:", error);
-      alert("Failed to send OTP. Please check the phone number and try again.");
+      toast.show(
+        "Failed to send OTP. Please check the phone number and try again.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -63,17 +67,17 @@ export default function SignupPage() {
 
   const handleVerifyOTP = async () => {
     if (!confirmationResult) {
-      alert("Please send an OTP first.");
+      toast.show("Please send an OTP first.", "warning");
       return;
     }
     setLoading(true);
     try {
       await confirmationResult.confirm(form.otp);
       setVerified(true);
-      alert("Phone number verified successfully!");
+      toast.show("✅ Phone number verified successfully!", "success");
     } catch (error) {
       console.error("OTP verification failed:", error);
-      alert("Invalid OTP. Please try again.");
+      toast.show("Invalid OTP. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -82,7 +86,14 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!verified) {
-      alert("Please verify your phone number first.");
+      toast.show("⚠️ Please verify your phone number first.", "warning");
+      return;
+    }
+    if (!location) {
+      toast.show(
+        "⚠️ Please provide your location for better service.",
+        "warning"
+      );
       return;
     }
     setLoading(true);
@@ -96,7 +107,22 @@ export default function SignupPage() {
           fullname: form.fullname,
           email: form.email,
           contact: form.phone,
-          location: "default location", // or collect this too
+          location: {
+            address: location.address?.formatted || location.fullAddress || "",
+            coordinates: location.coordinates
+              ? {
+                  latitude:
+                    location.coordinates.lat || location.coordinates.latitude,
+                  longitude:
+                    location.coordinates.lng || location.coordinates.longitude,
+                }
+              : null,
+            city: location.address?.city || location.city || "",
+            state: location.address?.state || location.state || "",
+            country: location.address?.country || location.country || "",
+            zipCode:
+              location.address?.zip || location.zipCode || location.zip || "",
+          },
           password: form.password,
         }),
       });
@@ -104,14 +130,20 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Signup successful!");
-        console.log(data); // ✅ contains token + user info
+        toast.show(
+          "🎉 Signup successful! Welcome to our community!",
+          "success"
+        );
+        console.log(data);
+        setTimeout(() => {
+          window.location.href = "/users/login";
+        }, 2000);
       } else {
-        alert(data.message || "Signup failed");
+        toast.show(data.message || "Signup failed", "error");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Signup failed. Please try again.");
+      toast.show("Signup failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -198,6 +230,26 @@ export default function SignupPage() {
                   </button>
                 </div>
               ) : null}
+
+              {/* Location Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">
+                  Your Location
+                </label>
+                <LocationPicker
+                  onLocationChange={setLocation}
+                  initialLocation={location}
+                />
+                {location && (
+                  <div className="text-xs text-[#C9BBF7] bg-white/5 rounded-lg p-2">
+                    📍{" "}
+                    {location.fullAddress ||
+                      location.formatted ||
+                      "Location detected"}
+                  </div>
+                )}
+              </div>
+
               <div className="relative">
                 <input
                   name="password"

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Layout from "../../components/Layout";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const toast = useToast();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,10 +38,12 @@ export default function LoginPage() {
       }
 
       console.log("Login successful:", data);
+      toast.success("🎉 Login successful! Welcome back!");
       // Redirect to home page or dashboard
-      router.push("/");
+      setTimeout(() => router.push("/"), 1000);
     } catch (err) {
       console.error("Login error:", err);
+      toast.error(err.message || "Failed to login. Please try again.");
       setError(err.message || "Failed to login. Please try again.");
     } finally {
       setLoading(false);

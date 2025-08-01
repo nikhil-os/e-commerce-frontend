@@ -6,10 +6,12 @@ import Loader from "./components/Loader";
 import ProductCard from "./components/ProductCard";
 import Link from "next/link";
 import { useAuth } from "./contexts/AuthContext";
+import { useToast } from "./contexts/ToastContext";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const toast = useToast();
 
   useEffect(() => {
     // Simulate API fetch with timeout
@@ -69,13 +71,13 @@ export default function Home() {
     try {
       const result = await addToCart(product._id, quantity);
       if (result.success) {
-        alert(`Added ${quantity} of ${product.name} to cart`);
+        toast.success(`🛒 Added ${quantity} of ${product.name} to cart`);
       } else {
-        alert(result.message || "Failed to add item to cart");
+        toast.error(result.message || "Failed to add item to cart");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      alert("Failed to add item to cart. Please try again.");
+      toast.error("Failed to add item to cart. Please try again.");
     }
   };
 
@@ -332,7 +334,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
+      {/* Call to Action Section */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
         {/* Background */}
         <div className="absolute inset-0 pointer-events-none">
@@ -341,29 +343,76 @@ export default function Home() {
         </div>
 
         {/* Foggy Glass Card */}
-        <div className="relative z-10 max-w-2xl w-full mx-auto">
+        <div className="relative z-10 max-w-4xl w-full mx-auto">
           <div className="backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 flex flex-col items-center gap-8 text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
-              Join Our Cosmic Community
+              Start Your Shopping Journey
             </h2>
-            <p className="text-lg md:text-xl text-[#C9BBF7] max-w-2xl mb-6">
-              Subscribe to our newsletter and be the first to receive exclusive
-              offers, interstellar product drops, and cosmic updates straight to
-              your inbox.
+            <p className="text-lg md:text-xl text-[#C9BBF7] max-w-3xl mb-8">
+              Discover thousands of premium products across all categories. From
+              fashion to electronics, find everything you need with unbeatable
+              prices and quality guarantee.
             </p>
-            <form className="w-full max-w-xl flex flex-col sm:flex-row items-center gap-4">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="w-full flex-1 px-4 py-3 rounded-lg bg-white/10 text-white placeholder-[#C9BBF7] focus:outline-none focus:ring-2 focus:ring-[#8D7DFA] backdrop-blur-md border border-white/10"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-lg bg-[#8D7DFA] text-white font-semibold hover:bg-[#7a6aea] transition duration-300 whitespace-nowrap shadow-lg"
-              >
-                Subscribe Now
-              </button>
-            </form>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full mb-8">
+              <div className="flex flex-col items-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#8D7DFA] mb-2">
+                  1000+
+                </div>
+                <div className="text-[#C9BBF7] text-sm md:text-base">
+                  Products
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#8D7DFA] mb-2">
+                  50+
+                </div>
+                <div className="text-[#C9BBF7] text-sm md:text-base">
+                  Categories
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#8D7DFA] mb-2">
+                  24/7
+                </div>
+                <div className="text-[#C9BBF7] text-sm md:text-base">
+                  Support
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#8D7DFA] mb-2">
+                  99%
+                </div>
+                <div className="text-[#C9BBF7] text-sm md:text-base">
+                  Satisfaction
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-xl">
+              <Link href="/categories" className="w-full sm:flex-1">
+                <button className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-[#8D7DFA] to-[#b278a8] text-white font-semibold hover:from-[#7a6aea] hover:to-[#a5689a] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                  Browse Categories
+                </button>
+              </Link>
+              <Link href="/products" className="w-full sm:flex-1">
+                <button className="w-full px-8 py-4 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/20 transition-all duration-300 backdrop-blur-md border border-white/20 hover:border-white/40 shadow-lg">
+                  View All Products
+                </button>
+              </Link>
+            </div>
+
+            {/* Special Offer Banner */}
+            <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-[#8D7DFA]/20 to-[#b278a8]/20 border border-white/10 backdrop-blur-sm">
+              <p className="text-[#C9BBF7] text-sm md:text-base">
+                🎉 <strong className="text-white">Limited Time:</strong> Free
+                shipping on orders above ₹1000 +{" "}
+                <strong className="text-white">Extra 10% off</strong> on your
+                first purchase!
+              </p>
+            </div>
           </div>
         </div>
       </section>

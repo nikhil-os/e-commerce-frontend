@@ -11,9 +11,16 @@ export function AuthProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
-  // Fetch user profile on initial load
+  // Fetch user profile on initial load with debouncing
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    // Skip if we're in an HMR refresh to reduce backend spam
+    if (typeof window !== "undefined" && window.__next_hmr_refresh_hash__) {
+      setLoading(false);
+      return;
+    }
+
+    // Debounce the fetch to prevent multiple rapid calls
+    const timeoutId = setTimeout(async () => {
       try {
         const res = await fetch("http://localhost:5000/api/users/profile", {
           credentials: "include",
@@ -30,9 +37,9 @@ export function AuthProvider({ children }) {
       } finally {
         setLoading(false);
       }
-    };
+    }, 100); // 100ms debounce
 
-    fetchUserProfile();
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Function to fetch cart data

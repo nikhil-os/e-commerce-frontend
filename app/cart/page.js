@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 import { useRouter } from "next/navigation";
 
 export default function CartPage() {
@@ -10,6 +11,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const router = useRouter();
+  const toast = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -51,11 +53,13 @@ export default function CartPage() {
       const result = await updateCartItem(id, quantity);
 
       if (!result.success) {
-        alert(result.message || "Failed to update cart");
+        toast.error(result.message || "Failed to update cart");
+      } else {
+        toast.success("🛒 Cart updated successfully");
       }
     } catch (error) {
       console.error("Error updating cart:", error);
-      alert("Failed to update cart. Please try again.");
+      toast.error("Failed to update cart. Please try again.");
     }
   };
 
@@ -65,12 +69,14 @@ export default function CartPage() {
         const result = await removeFromCart(id);
 
         if (!result.success) {
-          alert(result.message || "Failed to remove item");
+          toast.error(result.message || "Failed to remove item");
+        } else {
+          toast.success("🗑️ Item removed from cart");
         }
       }
     } catch (error) {
       console.error("Error removing item:", error);
-      alert("Failed to remove item. Please try again.");
+      toast.error("Failed to remove item. Please try again.");
     }
   };
 
