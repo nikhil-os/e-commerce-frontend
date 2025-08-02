@@ -3,27 +3,30 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="cosmic-footer pt-12 pb-6">
-      <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+    <footer className="cosmic-footer pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-16">
           {/* Logo and description */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8D7DFA] to-[#C9BBF7] flex items-center justify-center shadow-[0_0_15px_rgba(141,125,250,0.5)]">
-                <span className="text-xl font-bold text-white">🚀</span>
+          <div className="space-y-6 lg:col-span-1">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8D7DFA] to-[#C9BBF7] flex items-center justify-center shadow-[0_0_20px_rgba(141,125,250,0.5)]">
+                <span className="text-2xl font-bold text-white">✨</span>
               </div>
-              <span className="text-2xl font-bold tracking-wider text-white">
-                COSMIC<span className="text-[#C9BBF7]">SHOP</span>
+              <span className="text-3xl font-bold tracking-wider text-white">
+                SCRATCH
               </span>
             </div>
-            <p className="text-[#C9BBF7] opacity-80">
-              Explore our universe of premium products, curated just for you.
-              Journey through cosmic deals and stellar service.
+            <p className="text-[#C9BBF7] opacity-90 leading-relaxed max-w-sm">
+              Your ultimate destination for premium fashion and lifestyle
+              products. Discover quality, style, and innovation in every
+              purchase.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 pt-2">
               <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] transition-colors duration-300"
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] hover:scale-110 transition-all duration-300"
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -39,8 +42,10 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] transition-colors duration-300"
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] hover:scale-110 transition-all duration-300"
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -52,8 +57,10 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
-                className="w-9 h-9 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] transition-colors duration-300"
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#483C7A] flex items-center justify-center hover:bg-[#8D7DFA] hover:scale-110 transition-all duration-300"
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -71,160 +78,172 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
-              Quick Links
+          {/* Shop */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold mb-6 text-white border-b border-[#8D7DFA] border-opacity-30 pb-3">
+              Shop
             </h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
-                >
-                  Home
-                </Link>
-              </li>
+            <ul className="space-y-4">
               <li>
                 <Link
                   href="/products"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Shop All
+                  All Products
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/categories"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/categories/womens"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Categories
+                  Women's Fashion
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/about"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/categories/mens"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  About Us
+                  Men's Collection
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/contact"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/categories/accessories"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Contact
+                  Accessories
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/categories/footwear"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
+                >
+                  Footwear
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
-              Customer Service
+          {/* Customer Care */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold mb-6 text-white border-b border-[#8D7DFA] border-opacity-30 pb-3">
+              Customer Care
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               <li>
                 <Link
-                  href="/faq"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/contact"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  FAQ
+                  Contact Support
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/shipping"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/users/profile"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Shipping & Returns
+                  My Account
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/terms"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  href="/cart"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Terms & Conditions
+                  Shopping Cart
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/checkout"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
+                >
+                  Checkout
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company Info */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold mb-6 text-white border-b border-[#8D7DFA] border-opacity-30 pb-3">
+              Company
+            </h3>
+            <ul className="space-y-4">
+              <li>
+                <Link
+                  href="/about"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
+                >
+                  About SCRATCH
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/careers"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
+                >
+                  Careers
                 </Link>
               </li>
               <li>
                 <Link
                   href="/privacy"
-                  className="text-[#C9BBF7] hover:text-white transition-colors"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
                   Privacy Policy
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
-              Join Our Orbit
-            </h3>
-            <p className="text-[#C9BBF7] opacity-80 mb-4">
-              Subscribe to receive cosmic updates, promotions and stellar deals
-            </p>
-            <form className="space-y-2">
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="input pr-12"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-1 top-1 bottom-1 px-3 bg-[#8D7DFA] hover:bg-[#9E91FF] text-white rounded-full transition-colors"
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </form>
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
         {/* Bottom section */}
-        <div className="pt-8 mt-8 border-t border-[#8D7DFA] border-opacity-20 text-center">
-          <p className="text-[#C9BBF7] opacity-70 text-sm">
-            &copy; {new Date().getFullYear()} SCRATCH. All rights reserved.
-            Designed with 💜 in the cosmic void.
-          </p>
-          <div className="flex justify-center space-x-6 mt-4">
-            <img
-              src="/visa.svg"
-              alt="Visa"
-              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
-            />
-            <img
-              src="/mastercard.svg"
-              alt="Mastercard"
-              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
-            />
-            <img
-              src="/paypal.svg"
-              alt="PayPal"
-              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
-            />
-            <img
-              src="/apple-pay.svg"
-              alt="Apple Pay"
-              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
-            />
+        <div className="pt-12 mt-12 border-t border-[#8D7DFA] border-opacity-30">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
+            <p className="text-[#C9BBF7] opacity-80 text-sm leading-relaxed text-center lg:text-left">
+              &copy; {new Date().getFullYear()} SCRATCH. All rights reserved.
+              Crafted with ❤️ for fashion enthusiasts.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-8">
+              <span className="text-[#C9BBF7] opacity-80 text-sm whitespace-nowrap">
+                Secure payments with:
+              </span>
+              <div className="flex space-x-4">
+                <img
+                  src="/visa.svg"
+                  alt="Visa"
+                  className="h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+                />
+                <img
+                  src="/mastercard.svg"
+                  alt="Mastercard"
+                  className="h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+                />
+                <img
+                  src="/paypal.svg"
+                  alt="PayPal"
+                  className="h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+                />
+                <img
+                  src="/apple-pay.svg"
+                  alt="Apple Pay"
+                  className="h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

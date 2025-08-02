@@ -46,33 +46,43 @@ const Toast = ({ message, type = "success", duration = 3000, onClose }) => {
     switch (type) {
       case "success":
         return {
-          bg: "bg-gradient-to-r from-green-500 to-emerald-600",
+          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]", // Website theme colors
           icon: "✅",
-          progressBar: "bg-green-300",
+          iconColor: "text-green-400", // Green only for the icon
+          progressBar: "bg-green-400",
+          borderColor: "border-green-400/30",
         };
       case "error":
         return {
-          bg: "bg-gradient-to-r from-red-500 to-rose-600",
+          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]", // Website theme colors
           icon: "❌",
-          progressBar: "bg-red-300",
+          iconColor: "text-red-400", // Red only for the icon
+          progressBar: "bg-red-400",
+          borderColor: "border-red-400/30",
         };
       case "warning":
         return {
-          bg: "bg-gradient-to-r from-yellow-500 to-orange-500",
+          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]", // Website theme colors
           icon: "⚠️",
-          progressBar: "bg-yellow-300",
+          iconColor: "text-yellow-400", // Yellow only for the icon
+          progressBar: "bg-yellow-400",
+          borderColor: "border-yellow-400/30",
         };
       case "info":
         return {
-          bg: "bg-gradient-to-r from-blue-500 to-indigo-600",
+          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]", // Website theme colors
           icon: "ℹ️",
-          progressBar: "bg-blue-300",
+          iconColor: "text-blue-400", // Blue only for the icon
+          progressBar: "bg-blue-400",
+          borderColor: "border-blue-400/30",
         };
       default:
         return {
-          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]",
+          bg: "bg-gradient-to-r from-[#8f6690] to-[#b278a8]", // Website theme colors
           icon: "🎉",
-          progressBar: "bg-purple-300",
+          iconColor: "text-[#C9BBF7]", // Website accent color
+          progressBar: "bg-[#C9BBF7]",
+          borderColor: "border-[#C9BBF7]/30",
         };
     }
   };
@@ -82,13 +92,18 @@ const Toast = ({ message, type = "success", duration = 3000, onClose }) => {
   return (
     <div className={getToastStyles()}>
       <div
-        className={`${colors.bg} text-white p-4 rounded-xl shadow-2xl backdrop-blur-sm border border-white/20 min-w-[280px] max-w-full`}
+        className={`${colors.bg} text-white p-4 rounded-xl shadow-2xl backdrop-blur-sm border-2 ${colors.borderColor} min-w-[320px] max-w-full relative overflow-hidden`}
       >
-        <div className="flex items-start gap-3 min-h-[24px]">
-          <span className="text-xl flex-shrink-0 mt-0.5 leading-none">
+        {/* Glassmorphism overlay */}
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl"></div>
+
+        <div className="relative z-10 flex items-start gap-4 min-h-[24px]">
+          <div
+            className={`text-2xl flex-shrink-0 mt-0.5 leading-none ${colors.iconColor} drop-shadow-lg`}
+          >
             {colors.icon}
-          </span>
-          <p className="font-medium text-sm leading-[1.4] flex-1 min-w-0 break-words whitespace-pre-wrap py-0.5">
+          </div>
+          <p className="font-medium text-sm leading-[1.4] flex-1 min-w-0 break-words whitespace-pre-wrap py-0.5 text-white/95">
             {message}
           </p>
           <button
@@ -96,7 +111,7 @@ const Toast = ({ message, type = "success", duration = 3000, onClose }) => {
               setIsVisible(false);
               setTimeout(() => onClose && onClose(), 300);
             }}
-            className="text-white/80 hover:text-white transition-colors duration-200 text-xl leading-none flex-shrink-0 ml-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10"
+            className="text-white/70 hover:text-white transition-colors duration-200 text-xl leading-none flex-shrink-0 ml-2 w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/15 backdrop-blur-sm"
             aria-label="Close notification"
           >
             ×
@@ -104,9 +119,9 @@ const Toast = ({ message, type = "success", duration = 3000, onClose }) => {
         </div>
 
         {/* Progress bar */}
-        <div className="mt-3 h-1 bg-white/20 rounded-full overflow-hidden">
+        <div className="relative z-10 mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
           <div
-            className={`h-full ${colors.progressBar} transition-all duration-50 ease-linear rounded-full`}
+            className={`h-full ${colors.progressBar} transition-all duration-50 ease-linear rounded-full shadow-sm`}
             style={{ width: `${progress}%` }}
           />
         </div>

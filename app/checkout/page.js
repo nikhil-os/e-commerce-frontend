@@ -118,13 +118,13 @@ export default function CheckoutPage() {
           isDefault: false,
         });
         setLocation(null);
-        toast.show("📍 Address saved successfully!", "success");
+        toast.success("📍 Address saved successfully!");
       } else {
-        toast.show(data.message || "Failed to save address", "error");
+        toast.error(data.message || "Failed to save address");
       }
     } catch (error) {
       console.error("Error saving address:", error);
-      toast.show("Failed to save address. Please try again.", "error");
+      toast.error("Failed to save address. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     if (selectedAddress === null) {
-      toast.show("⚠️ Please select an address for delivery", "warning");
+      toast.warning("⚠️ Please select an address for delivery");
       return;
     }
 
@@ -190,21 +190,18 @@ export default function CheckoutPage() {
             window.location.href = `/payment?orderId=${data.order.id}`;
           } else {
             console.error("Invalid order data:", data);
-            toast.show("Invalid order data received from server", "error");
+            toast.error("Invalid order data received from server");
           }
         } else {
-          toast.show(data.message || "Failed to create order", "error");
+          toast.error(data.message || "Failed to create order");
         }
       } catch (parseError) {
         console.error("Error parsing JSON response:", parseError);
-        toast.show(
-          "Unexpected response format. Check console for details.",
-          "error"
-        );
+        toast.error("Unexpected response format. Check console for details.");
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.show("Failed to create order. Please try again.", "error");
+      toast.error("Failed to create order. Please try again.");
     } finally {
       setLoading(false);
     }

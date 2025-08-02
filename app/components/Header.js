@@ -8,7 +8,7 @@ export default function Header({ user, onLogout }) {
 
   return (
     <header className="cosmic-header sticky top-0 z-50 bg-gradient-to-r from-[#8f6690] to-[#b278a8] bg-opacity-80 backdrop-blur-xl rounded-2xl shadow-md">
-      <div className="container-custom py-4">
+      <div className="py-4 container-custom">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
@@ -17,12 +17,12 @@ export default function Header({ user, onLogout }) {
               <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF6B8E] border-2 border-white"></div>
             </div>
             <span className="text-2xl font-bold tracking-wider text-white">
-              COSMIC<span className="text-[#C9BBF7]">SHOP</span>
+              SCR<span className="text-[#C9BBF7]">ATCH</span>
             </span>
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="items-center hidden space-x-8 md:flex">
             <Link
               href="/"
               className="nav-link text-white hover:text-[#C9BBF7] transition-colors"
@@ -64,7 +64,7 @@ export default function Header({ user, onLogout }) {
               <span className="sr-only">Cart</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -93,13 +93,13 @@ export default function Header({ user, onLogout }) {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#8D7DFA] to-[#9E91FF] flex items-center justify-center text-white font-bold">
                     {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </div>
-                  <span className="hidden md:inline text-white">
+                  <span className="hidden text-white md:inline">
                     {user.name || "User"}
                   </span>
                 </Link>
                 <button
                   onClick={onLogout}
-                  className="hidden md:block btn btn-secondary text-sm py-2"
+                  className="hidden py-2 text-sm md:block btn btn-secondary"
                 >
                   Logout
                 </button>
@@ -108,13 +108,13 @@ export default function Header({ user, onLogout }) {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/users/login"
-                  className="btn btn-primary text-sm py-2"
+                  className="py-2 text-sm btn btn-primary"
                 >
                   Login
                 </Link>
                 <Link
                   href="/users/signup"
-                  className="hidden md:block btn btn-secondary text-sm py-2"
+                  className="hidden py-2 text-sm md:block btn btn-secondary"
                 >
                   Sign Up
                 </Link>
@@ -126,7 +126,7 @@ export default function Header({ user, onLogout }) {
               <span className="sr-only">Open menu</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
