@@ -182,7 +182,7 @@ export default function PaymentPage() {
             key: data.key, // Razorpay key from backend
             amount: data.razorpayOrder.amount,
             currency: data.razorpayOrder.currency,
-            name: "CosmicShop",
+            name: "SCRATCH",
             description: `Order #${orderId}`,
             order_id: data.razorpayOrder.id,
             handler: function (response) {

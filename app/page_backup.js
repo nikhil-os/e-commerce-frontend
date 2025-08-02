@@ -27,10 +27,6 @@ export default function Home() {
   });
   const [ctaRef, ctaVisible] = useScrollAnimation({ triggerOnce: false });
 
-  // Carousel state
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
   useEffect(() => {
     // Simulate API fetch with timeout
     setTimeout(() => {
@@ -82,30 +78,6 @@ export default function Home() {
       setLoading(false);
     }, 1000);
   }, []);
-
-  // Auto-play carousel effect
-  useEffect(() => {
-    if (!isAutoPlaying || products.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % products.length);
-    }, 3000); // 3 seconds transition
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, products.length]);
-
-  // Carousel navigation functions
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % products.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + products.length) % products.length);
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
 
   const { addToCart, fetchCartData } = useAuth();
 
@@ -193,151 +165,14 @@ export default function Home() {
                 heroVisible ? "animate-fadeInRight" : "opacity-0 translate-x-8"
               }`}
             >
-              {/* Product Carousel */}
-              <div className="relative rounded-2xl overflow-hidden shadow-xl h-[400px] bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm">
-                {products.length > 0 && (
-                  <>
-                    {/* Main Carousel Container */}
-                    <div
-                      className="flex transition-transform duration-500 ease-in-out h-full"
-                      style={{
-                        transform: `translateX(-${currentSlide * 100}%)`,
-                      }}
-                      onMouseEnter={() => setIsAutoPlaying(false)}
-                      onMouseLeave={() => setIsAutoPlaying(true)}
-                    >
-                      {products.map((product, index) => (
-                        <div
-                          key={product._id}
-                          className="min-w-full h-full relative"
-                        >
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Product Info Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
-                            <div className="p-6 text-white">
-                              <h3 className="text-2xl font-bold mb-2">
-                                {product.name}
-                              </h3>
-                              <p className="text-lg opacity-90 mb-2">
-                                ₹{product.price}
-                              </p>
-                              <p className="text-sm opacity-75">
-                                {product.description}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Navigation Buttons */}
-                    <button
-                      onClick={prevSlide}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md rounded-full p-3 text-white hover:bg-white/30 transition-all duration-300 z-10"
-                      aria-label="Previous product"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      onClick={nextSlide}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md rounded-full p-3 text-white hover:bg-white/30 transition-all duration-300 z-10"
-                      aria-label="Next product"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </button>
-
-                    {/* Slider Dots */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-                      {products.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => goToSlide(index)}
-                          className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                            index === currentSlide
-                              ? "bg-white scale-125"
-                              : "bg-white/50 hover:bg-white/75"
-                          }`}
-                          aria-label={`Go to slide ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 z-10">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300"
-                        style={{
-                          width: `${
-                            ((currentSlide + 1) / products.length) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-
-                    {/* Auto-play toggle */}
-                    <button
-                      onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                      className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full p-2 text-white hover:bg-white/30 transition-all duration-300 z-10"
-                      aria-label={
-                        isAutoPlaying ? "Pause slideshow" : "Play slideshow"
-                      }
-                    >
-                      {isAutoPlaying ? (
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      )}
-                    </button>
-                  </>
-                )}
-
-                {/* Loading state */}
-                {products.length === 0 && (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-                  </div>
-                )}
+              <div className="relative">
+                <img
+                  src="https://i.pinimg.com/736x/a9/31/33/a93133a28f7aa1346c34a2cbcd8a5312.jpg"
+                  alt="Hero Image"
+                  className={`relative rounded-2xl shadow-xl w-full object-cover h-[400px] z-10 transition-all duration-1000 ${
+                    heroVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+                  }`}
+                />
               </div>
             </div>
           </div>

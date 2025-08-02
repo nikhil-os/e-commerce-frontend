@@ -60,7 +60,7 @@ export default function LoginPage() {
         <div className="relative z-10 max-w-md w-full mx-auto">
           <div className="backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10">
             <h1 className="text-3xl font-bold text-white mb-4 text-center">
-              Sign In to CosmicShop
+              Sign In to SCRATCH
             </h1>
             <p className="text-[#C9BBF7] text-center mb-8">
               Welcome back, cosmic traveler! Enter your credentials to access
