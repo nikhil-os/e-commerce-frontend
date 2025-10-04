@@ -22,18 +22,30 @@ export function AuthProvider({ children }) {
     // Debounce the fetch to prevent multiple rapid calls
     const timeoutId = setTimeout(async () => {
       try {
-  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
-          credentials: "include",
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-          // Fetch cart data after authentication is confirmed
-          fetchCartData();
+        const res = await fetch(
+          "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
+          {
+            credentials: "include",
+          }
+        );
+        if (!res.ok) {
+          console.debug("[Auth] Profile fetch not ok:", res.status);
+        } else {
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (e) {
+            console.warn("[Auth] Failed parsing profile JSON", e);
+          }
+          if (data?.user) {
+            setUser(data.user);
+            fetchCartData();
+          } else {
+            console.debug("[Auth] Profile response missing user field", data);
+          }
         }
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("[Auth] Error fetching user profile:", error);
       } finally {
         setLoading(false);
       }
@@ -84,7 +96,16 @@ export function AuthProvider({ children }) {
       }
 
       if (!response.ok) {
+        console.debug("[Auth] Login failed status=", response.status, data);
         return { success: false, message: data.message || "Login failed" };
+      }
+
+      // If backend already returns user, optimistically set it so UI updates immediately
+      if (data?.user) {
+        setUser(data.user);
+      } else {
+        // Fallback provisional user (will be replaced by profile fetch)
+        setUser((prev) => prev || { email: credentials.email });
       }
 
       // Fetch user data after login
@@ -112,7 +133,8 @@ export function AuthProvider({ children }) {
         };
       }
 
-      setUser(userData.user);
+  // Replace provisional user with authoritative profile
+  setUser(userData.user);
       await fetchCartData();
       return { success: true };
     } catch (error) {
