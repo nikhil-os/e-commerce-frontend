@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
@@ -7,13 +7,31 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null); // optional bearer token fallback
+  const tokenRestoredRef = useRef(false);
+  const TOKEN_KEY = 'authToken';
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
   // Fetch user profile on initial load with debouncing
+  // 1. Restore token from localStorage (runs once on mount)
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(TOKEN_KEY);
+      if (stored) {
+        setAuthToken(stored);
+        tokenRestoredRef.current = true;
+      } else {
+        tokenRestoredRef.current = true; // nothing to restore
+      }
+    }
+  }, []);
+
+  // 2. Fetch profile after token restoration OR when authToken changes (and user not yet loaded)
+  useEffect(() => {
+    if (!tokenRestoredRef.current) return; // wait until token restoration attempt done
+    if (user) return; // already have user
     // Skip if we're in an HMR refresh to reduce backend spam
     if (typeof window !== "undefined" && window.__next_hmr_refresh_hash__) {
       setLoading(false);
@@ -56,7 +74,7 @@ export function AuthProvider({ children }) {
     }, 100); // 100ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [authToken, user]);
 
   // Function to fetch cart data
   const fetchCartData = async () => {
@@ -113,7 +131,10 @@ export function AuthProvider({ children }) {
       // If backend already returns user, optimistically set it so UI updates immediately
       // Capture token (if backend uses token-based auth instead of / in addition to cookies)
       const possibleToken = data?.token || data?.accessToken || data?.jwt;
-      if (possibleToken) setAuthToken(possibleToken);
+      if (possibleToken) {
+        setAuthToken(possibleToken);
+        try { if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, possibleToken); } catch(_) {}
+      }
 
       if (data?.user) {
         setUser(data.user);
@@ -185,7 +206,9 @@ export function AuthProvider({ children }) {
         headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
 
-      setUser(null);
+  setUser(null);
+  setAuthToken(null);
+  try { if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY); } catch(_) {}
       setCartItems([]);
       setCartCount(0);
       router.push("/");
