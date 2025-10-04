@@ -53,19 +53,53 @@ export default function SignupPage() {
     }
   };
 
+  // Normalize a user-entered phone number to E.164. Assumes default country +91 if none supplied.
+  const normalizePhone = (raw) => {
+    if (!raw) return "";
+    let p = raw.trim();
+    // Remove spaces, dashes, parentheses
+    p = p.replace(/[\s()\-]/g, "");
+    // If starts with 00 convert to +
+    if (p.startsWith("00")) p = "+" + p.slice(2);
+    // If already starts with + assume user added country code
+    if (p.startsWith("+")) return p;
+    // Drop leading 0 (common national format) then prepend +91 (adjust if needed)
+    if (p.startsWith("0")) p = p.slice(1);
+    // If user typed country "91" without plus
+    if (p.startsWith("91") && p.length === 12) return "+" + p;
+    // Default to +91 (can be extracted to env var later)
+    return "+91" + p;
+  };
+
+  const isValidE164 = (phone) => /^\+[1-9]\d{7,14}$/.test(phone);
+
   const handleSendOTP = async () => {
+    const formatted = normalizePhone(form.phone);
+    if (!isValidE164(formatted)) {
+      toast.error("Invalid phone format. Use +<country><number> (e.g. +919876543210)");
+      return;
+    }
+    // Persist normalized phone in form state (non-breaking for submit payload contact field)
+    if (formatted !== form.phone) setForm((f) => ({ ...f, phone: formatted }));
+
     setLoading(true);
     generateRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     try {
-      const result = await signInWithPhoneNumber(auth, form.phone, appVerifier);
+      const result = await signInWithPhoneNumber(auth, formatted, appVerifier);
       setConfirmationResult(result);
       setOtpSent(true);
       toast.success("📱 OTP sent successfully to your phone!");
     } catch (error) {
       console.error("Error sending OTP:", error);
+      // If reCAPTCHA expired, reset so user can retry
+      if (window.recaptchaVerifier?.rendered) {
+        try { await window.recaptchaVerifier.render(); } catch (_) {}
+      }
       toast.error(
-        "Failed to send OTP. Please check the phone number and try again."
+        error?.code === "auth/invalid-phone-number"
+          ? "Invalid phone number format. Please include country code."
+          : "Failed to send OTP. Please check the phone number and try again."
       );
     } finally {
       setLoading(false);
@@ -225,20 +259,21 @@ export default function SignupPage() {
                 <input
                   name="phone"
                   type="tel"
-                  placeholder="Phone (+91...)"
+                  placeholder="Phone (e.g. +919876543210)"
                   className="flex-1 input"
                   value={form.phone}
                   onChange={handleChange}
                   required
-                  disabled={otpSent}
+                  // Allow editing for resend; if verified lock it.
+                  disabled={verified}
                 />
                 <button
                   type="button"
                   onClick={handleSendOTP}
                   className="px-4 btn btn-secondary"
-                  disabled={otpSent || loading}
+                  disabled={loading}
                 >
-                  {otpSent ? "Resend" : "Send OTP"}
+                  {otpSent ? "Resend OTP" : "Send OTP"}
                 </button>
                 {verified && (
                   <span className="flex items-center gap-1 text-sm font-medium text-green-400">
