@@ -66,34 +66,55 @@ export function AuthProvider({ children }) {
   // Login function
   const login = async (credentials) => {
     try {
-  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://e-commerce-backend-1-if2s.onrender.com/api/users/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials),
+          credentials: "include",
+        }
+      );
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (_) {
+        data = {};
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        return { success: false, message: data.message || "Login failed" };
       }
 
       // Fetch user data after login
-  const userRes = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
-        credentials: "include",
-      });
+      const userRes = await fetch(
+        "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
+        { credentials: "include" }
+      );
 
-      if (userRes.ok) {
-        const userData = await userRes.json();
-        setUser(userData.user);
-
-        // Fetch cart data after login
-        fetchCartData();
-        return { success: true };
+      if (!userRes.ok) {
+        return {
+          success: false,
+          message: "Login succeeded but failed to load profile.",
+        };
       }
+
+      let userData = {};
+      try {
+        userData = await userRes.json();
+      } catch (_) {}
+
+      if (!userData.user) {
+        return {
+          success: false,
+          message: "Profile payload malformed after login",
+        };
+      }
+
+      setUser(userData.user);
+      await fetchCartData();
+      return { success: true };
     } catch (error) {
       return { success: false, message: error.message };
     }

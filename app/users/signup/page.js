@@ -190,7 +190,7 @@ export default function SignupPage() {
             password: form.password,
           });
 
-          if (loginResult.success) {
+          if (loginResult && loginResult.success) {
             toast.success("🚀 Redirecting to your dashboard...");
             setTimeout(() => {
               router.push("/"); // Redirect to home page instead of login
