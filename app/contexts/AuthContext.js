@@ -38,6 +38,35 @@ export function AuthProvider({ children }) {
     [authToken, readStoredToken]
   );
 
+  // Function to fetch cart data
+  const fetchCartData = useCallback(
+    async (tokenOverride) => {
+      try {
+        const headers = buildAuthHeaders(tokenOverride);
+        const res = await fetch(
+          'https://e-commerce-backend-1-if2s.onrender.com/api/cart',
+          {
+            credentials: 'include',
+            ...(headers ? { headers } : {}),
+          }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setCartItems(data.items || []);
+          setCartCount(
+            data.items
+              ? data.items.reduce((sum, item) => sum + item.quantity, 0)
+              : 0
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      }
+    },
+    [buildAuthHeaders]
+  );
+
   // Fetch user profile on initial load with debouncing
   // 1. Restore token from localStorage (runs once on mount)
   useEffect(() => {
@@ -99,35 +128,6 @@ export function AuthProvider({ children }) {
     return () => clearTimeout(timeoutId);
   }, [authToken, user, buildAuthHeaders, fetchCartData]);
 
-  // Function to fetch cart data
-  const fetchCartData = useCallback(
-    async (tokenOverride) => {
-      try {
-        const headers = buildAuthHeaders(tokenOverride);
-        const res = await fetch(
-          'https://e-commerce-backend-1-if2s.onrender.com/api/cart',
-          {
-            credentials: 'include',
-            ...(headers ? { headers } : {}),
-          }
-        );
-
-        if (res.ok) {
-          const data = await res.json();
-          setCartItems(data.items || []);
-          setCartCount(
-            data.items
-              ? data.items.reduce((sum, item) => sum + item.quantity, 0)
-              : 0
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-      }
-    },
-    [buildAuthHeaders]
-  );
-
   // Login function
   const login = async (credentials) => {
     try {
@@ -153,9 +153,38 @@ export function AuthProvider({ children }) {
         return { success: false, message: data.message || 'Login failed' };
       }
 
+      const normalizeHeaderToken = (raw) => {
+        if (typeof raw !== 'string') return null;
+        const trimmed = raw.trim();
+        if (!trimmed) return null;
+        return trimmed.startsWith('Bearer ')
+          ? trimmed.slice(7).trim()
+          : trimmed;
+      };
+
+      const pickToken = (...candidates) =>
+        candidates.find((value) => typeof value === 'string' && value.trim().length > 0) || null;
+
+      const headerAuth =
+        response.headers.get('authorization') ||
+        response.headers.get('Authorization');
+      const headerBearer = normalizeHeaderToken(headerAuth);
+      const headerToken = normalizeHeaderToken(response.headers.get('x-auth-token'));
+
       // If backend already returns user, optimistically set it so UI updates immediately
       // Capture token (if backend uses token-based auth instead of / in addition to cookies)
-      const possibleToken = data?.token || data?.accessToken || data?.jwt;
+      const possibleToken = pickToken(
+        data?.token,
+        data?.accessToken,
+        data?.jwt,
+        data?.data?.token,
+        data?.data?.accessToken,
+        data?.session?.token,
+        data?.user?.token,
+        headerBearer,
+        headerToken
+      );
+
       if (possibleToken) {
         setAuthToken(possibleToken);
         try {
