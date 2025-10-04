@@ -191,10 +191,14 @@ export default function SignupPage() {
           });
 
           if (loginResult && loginResult.success) {
-            toast.success("🚀 Account created & logged in. Redirecting...");
+            if (loginResult.profileLoaded === false) {
+              toast.success("✅ Account created. Finalizing profile...");
+            } else {
+              toast.success("🚀 Account created & logged in. Redirecting...");
+            }
             setTimeout(() => {
-              router.push("/"); // Redirect to home page instead of login
-            }, 1500);
+              router.push("/");
+            }, 800);
           } else {
             // If auto-login fails, redirect to login page
             toast.warning("Please login with your new credentials to continue");

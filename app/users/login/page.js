@@ -26,7 +26,11 @@ export default function LoginPage() {
     try {
       const result = await login(form);
       if (result?.success) {
-        toast.success("🎉 Login successful! Redirecting...");
+        if (result.profileLoaded === false) {
+          toast.success("✅ Logged in (loading profile in background)...");
+        } else {
+          toast.success("🎉 Login successful! Redirecting...");
+        }
         router.push("/");
       } else {
         const msg = result?.message || "Login failed";

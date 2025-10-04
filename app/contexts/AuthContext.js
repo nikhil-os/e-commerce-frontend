@@ -107,36 +107,51 @@ export function AuthProvider({ children }) {
         // Fallback provisional user (will be replaced by profile fetch)
         setUser((prev) => prev || { email: credentials.email });
       }
+      // Attempt to fetch user profile (retry up to 2 times if it fails – cookies may not be available immediately)
+      const attemptProfileFetch = async () => {
+        const res = await fetch(
+          "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
+          { credentials: "include" }
+        );
+        if (!res.ok) {
+          throw new Error("profile_fetch_status_" + res.status);
+        }
+        let payload = {};
+        try {
+          payload = await res.json();
+        } catch (e) {
+          throw new Error("profile_json_parse_error");
+        }
+        if (!payload.user) throw new Error("profile_missing_user_field");
+        return payload.user;
+      };
 
-      // Fetch user data after login
-      const userRes = await fetch(
-        "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
-        { credentials: "include" }
-      );
-
-      if (!userRes.ok) {
-        return {
-          success: false,
-          message: "Login succeeded but failed to load profile.",
-        };
+      let profileUser = null;
+      for (let i = 0; i < 2; i++) {
+        try {
+          profileUser = await attemptProfileFetch();
+          break;
+        } catch (e) {
+          console.debug(`[Auth] Profile fetch attempt ${i + 1} failed:`, e.message);
+          // small delay before retry (200ms)
+          await new Promise((r) => setTimeout(r, 200));
+        }
       }
 
-      let userData = {};
-      try {
-        userData = await userRes.json();
-      } catch (_) {}
-
-      if (!userData.user) {
+      if (profileUser) {
+        setUser(profileUser);
+        await fetchCartData();
+        return { success: true, profileLoaded: true };
+      } else {
+        console.warn(
+          "[Auth] Login succeeded but profile could not be loaded after retries. Proceeding with provisional user."
+        );
         return {
-          success: false,
-          message: "Profile payload malformed after login",
+          success: true,
+          profileLoaded: false,
+          message: "Profile not loaded yet",
         };
       }
-
-  // Replace provisional user with authoritative profile
-  setUser(userData.user);
-      await fetchCartData();
-      return { success: true };
     } catch (error) {
       return { success: false, message: error.message };
     }
