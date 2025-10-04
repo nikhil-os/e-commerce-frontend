@@ -191,20 +191,20 @@ export default function SignupPage() {
           });
 
           if (loginResult && loginResult.success) {
-            toast.success("🚀 Redirecting to your dashboard...");
+            toast.success("🚀 Account created & logged in. Redirecting...");
             setTimeout(() => {
               router.push("/"); // Redirect to home page instead of login
             }, 1500);
           } else {
             // If auto-login fails, redirect to login page
-            toast.warning("Please login with your new credentials");
+            toast.warning("Please login with your new credentials to continue");
             setTimeout(() => {
               router.push("/users/login");
             }, 2000);
           }
         } catch (loginError) {
           console.error("Auto-login error:", loginError);
-          toast.warning("Please login with your new credentials");
+          toast.warning("Please login with your new credentials to continue");
           setTimeout(() => {
             router.push("/users/login");
           }, 2000);

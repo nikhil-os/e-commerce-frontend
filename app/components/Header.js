@@ -3,8 +3,9 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function Header({ user, onLogout }) {
-  const { cartCount } = useAuth();
+export default function Header({ user: propUser, onLogout }) {
+  const { cartCount, user: ctxUser } = useAuth();
+  const user = propUser || ctxUser; // prefer explicit prop, fallback to context for real-time
 
   return (
     <header className="cosmic-header sticky top-0 z-50 bg-gradient-to-r from-[#8f6690] to-[#b278a8] bg-opacity-80 backdrop-blur-xl rounded-2xl shadow-md">
