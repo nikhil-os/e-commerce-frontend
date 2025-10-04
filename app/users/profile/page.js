@@ -66,7 +66,7 @@ export default function ProfilePage() {
     setLoading(false);
 
     // Fetch orders
-    fetch("http://localhost:5000/api/users/orders", {
+  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/orders", {
       credentials: "include",
     })
       .then((res) => res.json())

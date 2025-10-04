@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
       const firebaseToken = await user.getIdToken();
 
       const response = await fetch(
-        "http://localhost:5000/api/users/reset-password",
+  "https://e-commerce-backend-1-if2s.onrender.com/api/users/reset-password",
         {
           method: "POST",
           headers: {

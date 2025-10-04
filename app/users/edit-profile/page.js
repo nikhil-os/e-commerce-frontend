@@ -60,7 +60,7 @@ export default function EditProfilePage() {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/users/update-profile",
+  "https://e-commerce-backend-1-if2s.onrender.com/api/users/update-profile",
         {
           method: "POST",
           credentials: "include",

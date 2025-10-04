@@ -91,10 +91,10 @@ export default function ProductsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:5000/api/products")
+  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/products")
         .then((res) => res.json())
         .catch(() => ({ products: [] })),
-      fetch("http://localhost:5000/api/categories")
+  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/categories")
         .then((res) => res.json())
         .catch(() => ({ categories: [] })),
     ])

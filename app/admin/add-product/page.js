@@ -18,7 +18,7 @@ export default function AddProductPage() {
 
   // Fetch categories when component mounts
   useEffect(() => {
-    fetch("http://localhost:5000/api/categories", {
+  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/categories", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -60,7 +60,7 @@ export default function AddProductPage() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/admin/add-product",
+  "https://e-commerce-backend-1-if2s.onrender.com/api/admin/add-product",
         {
           method: "POST",
           body: formData,

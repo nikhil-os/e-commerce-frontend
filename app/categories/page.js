@@ -152,7 +152,7 @@ export default function CategoriesPage() {
       }));
     });
 
-    fetch("http://localhost:5000/api/categories")
+  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/categories")
       .then((res) => res.json())
       .then((data) => {
         if (data.categories && data.categories.length > 0) {

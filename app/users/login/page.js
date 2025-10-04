@@ -22,7 +22,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
+  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

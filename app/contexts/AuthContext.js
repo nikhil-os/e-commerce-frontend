@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     // Debounce the fetch to prevent multiple rapid calls
     const timeoutId = setTimeout(async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users/profile", {
+  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
           credentials: "include",
         });
 
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
   // Function to fetch cart data
   const fetchCartData = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/cart", {
+  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart", {
         credentials: "include",
       });
 
@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
   // Login function
   const login = async (credentials) => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
+  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
       }
 
       // Fetch user data after login
-      const userRes = await fetch("http://localhost:5000/api/users/profile", {
+  const userRes = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
         credentials: "include",
       });
 
@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-      await fetch("http://localhost:5000/api/users/logout", {
+  await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
       // Log the token cookie before making the request
       console.log("Cookies before fetch:", document.cookie);
 
-      const response = await fetch("http://localhost:5000/api/cart", {
+  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +164,7 @@ export function AuthProvider({ children }) {
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/update/${productId}`,
+  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
         {
           method: "POST",
           headers: {
@@ -221,7 +221,7 @@ export function AuthProvider({ children }) {
   const removeFromCart = async (productId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/cart/remove/${productId}`,
+  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
         {
           method: "POST",
           credentials: "include",

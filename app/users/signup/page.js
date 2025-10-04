@@ -114,7 +114,7 @@ export default function SignupPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/users/signup", {
+  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

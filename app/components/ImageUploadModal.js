@@ -171,7 +171,7 @@ const ImageUploadModal = ({
 
       // Update category image via API
       const response = await fetch(
-        `http://localhost:5000/api/admin/categories/${categorySlug}/image`,
+  `https://e-commerce-backend-1-if2s.onrender.com/api/admin/categories/${categorySlug}/image`,
         {
           method: "PUT",
           headers: {

@@ -4,7 +4,8 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*', // Proxy to Backend
+  // Updated to production backend
+  destination: 'https://e-commerce-backend-1-if2s.onrender.com/api/:path*', // Proxy to Backend
       },
     ];
   },

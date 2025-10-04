@@ -61,7 +61,7 @@ export default function ProductsByCategoryPage() {
       try {
         // First try the products API route
         const res = await fetch(
-          `http://localhost:5000/api/products/category/${category}`
+          `https://e-commerce-backend-1-if2s.onrender.com/api/products/category/${category}`
         );
         const data = await res.json();
         setProducts(data.products || []);
@@ -70,7 +70,7 @@ export default function ProductsByCategoryPage() {
         try {
           // If that fails, try the categories API route
           const res = await fetch(
-            `http://localhost:5000/api/categories/${category}`
+            `https://e-commerce-backend-1-if2s.onrender.com/api/categories/${category}`
           );
           const data = await res.json();
           setProducts(data.products || []);
