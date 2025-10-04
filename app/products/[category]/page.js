@@ -64,7 +64,12 @@ export default function ProductsByCategoryPage() {
           `https://e-commerce-backend-1-if2s.onrender.com/api/products/category/${category}`
         );
         const data = await res.json();
-        setProducts(data.products || []);
+        const normalized = (data.products || []).map(p => ({
+          ...p,
+          // If category is embedded, ensure it becomes a simple label for UI rendering
+          category: typeof p.category === 'object' ? (p.category?.name || p.category?.slug || 'Category') : p.category,
+        }));
+        setProducts(normalized);
         setLoading(false);
       } catch (err1) {
         try {
@@ -73,7 +78,11 @@ export default function ProductsByCategoryPage() {
             `https://e-commerce-backend-1-if2s.onrender.com/api/categories/${category}`
           );
           const data = await res.json();
-          setProducts(data.products || []);
+          const normalized = (data.products || []).map(p => ({
+            ...p,
+            category: typeof p.category === 'object' ? (p.category?.name || p.category?.slug || 'Category') : p.category,
+          }));
+          setProducts(normalized);
           setLoading(false);
         } catch (err2) {
           // If both fail, use fallback data

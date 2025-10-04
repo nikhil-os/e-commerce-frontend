@@ -2,10 +2,34 @@ import React from 'react';
 import Link from 'next/link';
 
 export default function ProductCard({ product, onAddToCart }) {
-  const { _id, name, price, discount, image, category } = product;
-  
-  // Calculate discounted price
-  const discountedPrice = discount ? price - (price * discount / 100) : price;
+  // Destructure with fallbacks
+  const {
+    _id,
+    name = 'Unnamed Product',
+    price = 0,
+    discount = 0,
+    image,
+    imageUrl,
+    imageURL,
+    category
+  } = product || {};
+
+  // Normalize category to a displayable string (API may return an object)
+  const categoryLabel = typeof category === 'string'
+    ? category
+    : (category?.name || category?.slug || 'Category');
+
+  // Pick the first available image field
+  const imageSrc = image || imageUrl || imageURL || 'https://via.placeholder.com/600x400?text=Product';
+
+  // Sanitize numeric values
+  const numericPrice = typeof price === 'number' ? price : Number(price) || 0;
+  const numericDiscount = typeof discount === 'number' ? discount : Number(discount) || 0;
+
+  // Calculate discounted price safely
+  const discountedPrice = numericDiscount > 0
+    ? Math.max(0, numericPrice - (numericPrice * numericDiscount / 100))
+    : numericPrice;
   
   // Format price to INR
   const formatPrice = (amount) => {
@@ -19,24 +43,24 @@ export default function ProductCard({ product, onAddToCart }) {
   return (
     <div className="card group relative overflow-hidden transition-all duration-500 hover:translate-y-[-8px] bg-[#D183A9]">
       {/* Discount badge */}
-      {discount > 0 && (
+      {numericDiscount > 0 && (
         <div className="absolute top-3 left-3 z-10 bg-[#FF6B8E] text-white text-xs font-bold px-2 py-1 rounded-full">
-          {discount}% OFF
+          {numericDiscount}% OFF
         </div>
       )}
       
       {/* Category badge */}
       <div className="absolute top-3 right-3 z-10 bg-[#5D4E8C] bg-opacity-70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-        {category}
+        {categoryLabel}
       </div>
       
       {/* Image container */}
       <Link href={`/products/${_id}`}>
         <div className="relative h-56 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-t from-[#3A3159] to-transparent opacity-0 group-hover:opacity-30 transition-opacity z-10"></div>
-          <img 
-            src={image} 
-            alt={name} 
+          <img
+            src={imageSrc}
+            alt={name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         </div>
@@ -56,8 +80,8 @@ export default function ProductCard({ product, onAddToCart }) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-white">{formatPrice(discountedPrice)}</span>
-            {discount > 0 && (
-              <span className="text-sm text-[#C9BBF7] line-through opacity-70">{formatPrice(price)}</span>
+            {numericDiscount > 0 && (
+              <span className="text-sm text-[#C9BBF7] line-through opacity-70">{formatPrice(numericPrice)}</span>
             )}
           </div>
           
