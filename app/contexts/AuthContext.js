@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [authToken, setAuthToken] = useState(null); // optional bearer token fallback
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
@@ -26,6 +27,9 @@ export function AuthProvider({ children }) {
           "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
           {
             credentials: "include",
+            headers: authToken
+              ? { Authorization: `Bearer ${authToken}` }
+              : undefined,
           }
         );
         if (!res.ok) {
@@ -57,9 +61,15 @@ export function AuthProvider({ children }) {
   // Function to fetch cart data
   const fetchCartData = async () => {
     try {
-  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart", {
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://e-commerce-backend-1-if2s.onrender.com/api/cart",
+        {
+          credentials: "include",
+          headers: authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined,
+        }
+      );
 
       if (res.ok) {
         const data = await res.json();
@@ -101,6 +111,10 @@ export function AuthProvider({ children }) {
       }
 
       // If backend already returns user, optimistically set it so UI updates immediately
+      // Capture token (if backend uses token-based auth instead of / in addition to cookies)
+      const possibleToken = data?.token || data?.accessToken || data?.jwt;
+      if (possibleToken) setAuthToken(possibleToken);
+
       if (data?.user) {
         setUser(data.user);
       } else {
@@ -111,7 +125,12 @@ export function AuthProvider({ children }) {
       const attemptProfileFetch = async () => {
         const res = await fetch(
           "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
-          { credentials: "include" }
+          {
+            credentials: "include",
+            headers: authToken
+              ? { Authorization: `Bearer ${authToken}` }
+              : undefined,
+          }
         );
         if (!res.ok) {
           throw new Error("profile_fetch_status_" + res.status);
@@ -163,6 +182,7 @@ export function AuthProvider({ children }) {
   await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/logout", {
         method: "POST",
         credentials: "include",
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
 
       setUser(null);
@@ -199,6 +219,7 @@ export function AuthProvider({ children }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
         body: JSON.stringify({ productId, quantity }),
         credentials: "include",
@@ -222,11 +243,12 @@ export function AuthProvider({ children }) {
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await fetch(
-  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
+        `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
           },
           body: JSON.stringify({ quantity }),
           credentials: "include",
@@ -279,10 +301,13 @@ export function AuthProvider({ children }) {
   const removeFromCart = async (productId) => {
     try {
       const response = await fetch(
-  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
+        `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
         {
           method: "POST",
           credentials: "include",
+          headers: authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined,
         }
       );
 
@@ -331,7 +356,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-        user,
+  user,
+  authToken,
         loading,
         login,
         logout,
