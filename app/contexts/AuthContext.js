@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useContext, useEffect, useRef } from "react";
+import { createContext, useState, useContext, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const AuthContext = createContext();
@@ -13,6 +13,20 @@ export function AuthProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
+
+  const readStoredToken = useCallback(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const buildAuthHeaders = useCallback((tokenOverride) => {
+    const token = tokenOverride ?? authToken ?? readStoredToken();
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
+  }, [authToken, readStoredToken]);
 
   // Fetch user profile on initial load with debouncing
   // 1. Restore token from localStorage (runs once on mount)
@@ -41,13 +55,12 @@ export function AuthProvider({ children }) {
     // Debounce the fetch to prevent multiple rapid calls
     const timeoutId = setTimeout(async () => {
       try {
+        const headers = buildAuthHeaders();
         const res = await fetch(
           "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
           {
             credentials: "include",
-            headers: authToken
-              ? { Authorization: `Bearer ${authToken}` }
-              : undefined,
+            ...(headers ? { headers } : {}),
           }
         );
         if (!res.ok) {
@@ -74,18 +87,17 @@ export function AuthProvider({ children }) {
     }, 100); // 100ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [authToken, user]);
+  }, [authToken, user, buildAuthHeaders, fetchCartData]);
 
   // Function to fetch cart data
-  const fetchCartData = async () => {
+  const fetchCartData = useCallback(async (tokenOverride) => {
     try {
+      const headers = buildAuthHeaders(tokenOverride);
       const res = await fetch(
         "https://e-commerce-backend-1-if2s.onrender.com/api/cart",
         {
           credentials: "include",
-          headers: authToken
-            ? { Authorization: `Bearer ${authToken}` }
-            : undefined,
+          ...(headers ? { headers } : {}),
         }
       );
 
@@ -101,7 +113,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error("Error fetching cart:", error);
     }
-  };
+  }, [buildAuthHeaders]);
 
   // Login function
   const login = async (credentials) => {
@@ -119,7 +131,7 @@ export function AuthProvider({ children }) {
       let data;
       try {
         data = await response.json();
-      } catch (_) {
+      } catch {
         data = {};
       }
 
@@ -133,8 +145,10 @@ export function AuthProvider({ children }) {
       const possibleToken = data?.token || data?.accessToken || data?.jwt;
       if (possibleToken) {
         setAuthToken(possibleToken);
-        try { if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, possibleToken); } catch(_) {}
+        try { if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, possibleToken); } catch {}
       }
+
+      const sessionToken = possibleToken || readStoredToken();
 
       if (data?.user) {
         setUser(data.user);
@@ -144,13 +158,12 @@ export function AuthProvider({ children }) {
       }
       // Attempt to fetch user profile (retry up to 2 times if it fails – cookies may not be available immediately)
       const attemptProfileFetch = async () => {
+        const headers = buildAuthHeaders(sessionToken);
         const res = await fetch(
           "https://e-commerce-backend-1-if2s.onrender.com/api/users/profile",
           {
             credentials: "include",
-            headers: authToken
-              ? { Authorization: `Bearer ${authToken}` }
-              : undefined,
+            ...(headers ? { headers } : {}),
           }
         );
         if (!res.ok) {
@@ -159,7 +172,7 @@ export function AuthProvider({ children }) {
         let payload = {};
         try {
           payload = await res.json();
-        } catch (e) {
+        } catch {
           throw new Error("profile_json_parse_error");
         }
         if (!payload.user) throw new Error("profile_missing_user_field");
@@ -180,7 +193,7 @@ export function AuthProvider({ children }) {
 
       if (profileUser) {
         setUser(profileUser);
-        await fetchCartData();
+        await fetchCartData(sessionToken);
         return { success: true, profileLoaded: true };
       } else {
         console.warn(
@@ -200,15 +213,16 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-  await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/logout", {
+      const headers = buildAuthHeaders();
+      await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/logout", {
         method: "POST",
         credentials: "include",
-        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        ...(headers ? { headers } : {}),
       });
 
-  setUser(null);
-  setAuthToken(null);
-  try { if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY); } catch(_) {}
+      setUser(null);
+      setAuthToken(null);
+  try { if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY); } catch {}
       setCartItems([]);
       setCartCount(0);
       router.push("/");
@@ -238,11 +252,12 @@ export function AuthProvider({ children }) {
       // Log the token cookie before making the request
       console.log("Cookies before fetch:", document.cookie);
 
-  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart", {
+      const authHeaders = buildAuthHeaders();
+      const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...(authHeaders || {}),
         },
         body: JSON.stringify({ productId, quantity }),
         credentials: "include",
@@ -265,13 +280,14 @@ export function AuthProvider({ children }) {
   // Update cart item quantity
   const updateCartItem = async (productId, quantity) => {
     try {
+      const authHeaders = buildAuthHeaders();
       const response = await fetch(
         `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            ...(authHeaders || {}),
           },
           body: JSON.stringify({ quantity }),
           credentials: "include",
@@ -323,14 +339,13 @@ export function AuthProvider({ children }) {
   // Remove from cart
   const removeFromCart = async (productId) => {
     try {
+      const headers = buildAuthHeaders();
       const response = await fetch(
         `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
         {
           method: "POST",
           credentials: "include",
-          headers: authToken
-            ? { Authorization: `Bearer ${authToken}` }
-            : undefined,
+          ...(headers ? { headers } : {}),
         }
       );
 
@@ -379,8 +394,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-  user,
-  authToken,
+        user,
+        authToken,
         loading,
         login,
         logout,
