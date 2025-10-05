@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Layout from '../components/Layout';
 import { useToast } from '../contexts/ToastContext';
@@ -36,7 +36,7 @@ const paymentMethods = [
   },
 ];
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const toast = useToast();
@@ -479,5 +479,21 @@ export default function PaymentPage() {
         </div>
       </div>
     </Layout>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense
+      fallback={
+        <Layout>
+          <div className="py-16 text-center text-gray-600">
+            Loading payment details...
+          </div>
+        </Layout>
+      }
+    >
+      <PaymentPageContent />
+    </Suspense>
   );
 }

@@ -1,14 +1,14 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Layout from "../components/Layout";
-import { useRouter, useSearchParams } from "next/navigation";
+'use client';
+import React, { useEffect, useState, Suspense } from 'react';
+import Layout from '../components/Layout';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const method = searchParams.get("method");
-  const orderId = searchParams.get("orderId");
-  const paymentId = searchParams.get("paymentId");
+  const method = searchParams.get('method');
+  const orderId = searchParams.get('orderId');
+  const paymentId = searchParams.get('paymentId');
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
@@ -20,20 +20,20 @@ export default function PaymentSuccessPage() {
 
   const getPaymentMethodDisplay = (method) => {
     switch (method?.toLowerCase()) {
-      case "cod":
+      case 'cod':
         return {
-          name: "Cash on Delivery",
-          icon: "💵",
-          color: "text-green-600",
+          name: 'Cash on Delivery',
+          icon: '💵',
+          color: 'text-green-600',
         };
-      case "razorpay":
-        return { name: "Card Payment", icon: "💳", color: "text-blue-600" };
-      case "upi":
-        return { name: "UPI Payment", icon: "📱", color: "text-purple-600" };
-      case "netbanking":
-        return { name: "Net Banking", icon: "🏦", color: "text-indigo-600" };
+      case 'razorpay':
+        return { name: 'Card Payment', icon: '💳', color: 'text-blue-600' };
+      case 'upi':
+        return { name: 'UPI Payment', icon: '📱', color: 'text-purple-600' };
+      case 'netbanking':
+        return { name: 'Net Banking', icon: '🏦', color: 'text-indigo-600' };
       default:
-        return { name: "Online Payment", icon: "💰", color: "text-gray-600" };
+        return { name: 'Online Payment', icon: '💰', color: 'text-gray-600' };
     }
   };
 
@@ -54,12 +54,12 @@ export default function PaymentSuccessPage() {
                     left: `${Math.random() * 100}%`,
                     animationDelay: `${Math.random() * 3}s`,
                     backgroundColor: [
-                      "#8f6690",
-                      "#b278a8",
-                      "#C9BBF7",
-                      "#FF6B8E",
-                      "#FFD700",
-                      "#00FF7F",
+                      '#8f6690',
+                      '#b278a8',
+                      '#C9BBF7',
+                      '#FF6B8E',
+                      '#FFD700',
+                      '#00FF7F',
                     ][Math.floor(Math.random() * 6)],
                   }}
                 />
@@ -100,7 +100,7 @@ export default function PaymentSuccessPage() {
               🎉 Payment Successful!
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Thank you for your order. We're processing it now!
+              Thank you for your order. We’re processing it now!
             </p>
 
             {/* Order Details Card */}
@@ -155,14 +155,14 @@ export default function PaymentSuccessPage() {
             {/* Action Buttons */}
             <div className="space-y-4">
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push('/')}
                 className="w-full bg-gradient-to-r from-[#8f6690] to-[#b278a8] text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 🛍️ Continue Shopping
               </button>
 
               <button
-                onClick={() => router.push("/users/profile")}
+                onClick={() => router.push('/users/profile')}
                 className="w-full border-2 border-[#8f6690] text-[#8f6690] py-3 rounded-xl font-semibold hover:bg-[#8f6690] hover:text-white transition-all duration-300"
               >
                 📋 View Order History
@@ -208,5 +208,21 @@ export default function PaymentSuccessPage() {
         }
       `}</style>
     </Layout>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#8f6690] to-[#b278a8]">
+          <p className="text-white text-lg font-semibold">
+            Loading payment status...
+          </p>
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

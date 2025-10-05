@@ -677,7 +677,7 @@ export default function SignupPage() {
                     </h3>
                     <p className="text-sm leading-relaxed">
                       SCRATCH is committed to providing high-quality fashion and
-                      lifestyle products. If you're not satisfied with your
+                      lifestyle products. If you’re not satisfied with your
                       purchase, contact our customer service team for
                       assistance.
                     </p>
@@ -693,7 +693,7 @@ export default function SignupPage() {
                       Limitation of Liability
                     </h3>
                     <p className="text-sm leading-relaxed">
-                      SCRATCH's liability is limited to the purchase price of
+                      SCRATCH’s liability is limited to the purchase price of
                       the product. We are not responsible for any indirect,
                       incidental, or consequential damages arising from product
                       use.

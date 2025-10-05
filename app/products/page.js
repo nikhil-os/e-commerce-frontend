@@ -355,7 +355,7 @@ export default function ProductsPage() {
                   No Products Found
                 </h3>
                 <p className="text-[#C9BBF7] mb-6">
-                  We couldn't find any products matching your criteria. Try
+                  We couldn’t find any products matching your criteria. Try
                   adjusting your filters.
                 </p>
                 <button
@@ -383,7 +383,7 @@ export default function ProductsPage() {
         <div className="relative z-10 max-w-4xl mx-auto px-4">
           <div className="backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Can't Find What You're Looking For?
+              Can’t Find What You’re Looking For?
             </h2>
             <p className="text-lg text-[#C9BBF7] mb-8 max-w-2xl mx-auto">
               Explore our organized categories or contact our stellar support

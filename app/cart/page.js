@@ -1,9 +1,9 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Layout from "../components/Layout";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const { user, cartItems, updateCartItem, removeFromCart, fetchCartData } =
@@ -15,7 +15,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/users/login");
+      router.push('/users/login');
       return;
     }
 
@@ -24,7 +24,7 @@ export default function CartPage() {
         await fetchCartData();
         setLoading(false);
       } catch (error) {
-        console.error("Error loading cart:", error);
+        console.error('Error loading cart:', error);
         setLoading(false);
       }
     };
@@ -53,30 +53,30 @@ export default function CartPage() {
       const result = await updateCartItem(id, quantity);
 
       if (!result.success) {
-        toast.error(result.message || "Failed to update cart");
+        toast.error(result.message || 'Failed to update cart');
       } else {
-        toast.success("🛒 Cart updated successfully");
+        toast.success('🛒 Cart updated successfully');
       }
     } catch (error) {
-      console.error("Error updating cart:", error);
-      toast.error("Failed to update cart. Please try again.");
+      console.error('Error updating cart:', error);
+      toast.error('Failed to update cart. Please try again.');
     }
   };
 
   const handleRemove = async (id) => {
     try {
-      if (window.confirm("Remove this item from cart?")) {
+      if (window.confirm('Remove this item from cart?')) {
         const result = await removeFromCart(id);
 
         if (!result.success) {
-          toast.error(result.message || "Failed to remove item");
+          toast.error(result.message || 'Failed to remove item');
         } else {
-          toast.success("🗑️ Item removed from cart");
+          toast.success('🗑️ Item removed from cart');
         }
       }
     } catch (error) {
-      console.error("Error removing item:", error);
-      toast.error("Failed to remove item. Please try again.");
+      console.error('Error removing item:', error);
+      toast.error('Failed to remove item. Please try again.');
     }
   };
 
@@ -97,7 +97,7 @@ export default function CartPage() {
               Oops! Your cart is empty
             </h3>
             <p className="text-gray-500">
-              Looks like you haven't added anything to your cart yet.
+              Looks like you haven’t added anything to your cart yet.
             </p>
           </div>
         ) : (
@@ -110,7 +110,7 @@ export default function CartPage() {
                 >
                   <img
                     src={
-                      item.product.imageUrl || "https://via.placeholder.com/300"
+                      item.product.imageUrl || 'https://via.placeholder.com/300'
                     }
                     className="w-full h-48 object-cover"
                     alt={item.product.name}
@@ -164,7 +164,7 @@ export default function CartPage() {
               <p className="text-sm text-gray-500">Delivery: ₹50</p>
               <p className="text-xl font-bold mt-1">Total: ₹{total + 50}</p>
               <button
-                onClick={() => router.push("/checkout")}
+                onClick={() => router.push('/checkout')}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded mt-4"
               >
                 Proceed to Checkout

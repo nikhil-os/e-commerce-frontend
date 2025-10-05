@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import Layout from "../components/Layout";
+import React from 'react';
+import Layout from '../components/Layout';
 
 export default function Terms() {
   return (
@@ -15,7 +15,7 @@ export default function Terms() {
                 Terms of Service
               </h1>
               <p className="text-xl text-[#C9BBF7]">
-                Please read these terms carefully before using SCRATCH's
+                Please read these terms carefully before using SCRATCH’s
                 services.
               </p>
             </div>
@@ -38,7 +38,7 @@ export default function Terms() {
                 </h2>
                 <p className="text-[#C9BBF7] mb-6">
                   Permission is granted to temporarily download one copy of the
-                  materials on SCRATCH's website for personal, non-commercial
+                  materials on SCRATCH’s website for personal, non-commercial
                   transitory viewing only. This is the grant of a license, not a
                   transfer of title.
                 </p>

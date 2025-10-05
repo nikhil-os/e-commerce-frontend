@@ -1,14 +1,14 @@
-"use client";
-import React, { useState } from "react";
-import Layout from "../../components/Layout";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useToast } from "../../contexts/ToastContext";
-import { useAuth } from "../../contexts/AuthContext";
+'use client';
+import React, { useState } from 'react';
+import Layout from '../../components/Layout';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -20,26 +20,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
       const result = await login(form);
       if (result?.success) {
         if (result.profileLoaded === false) {
-          toast.success("✅ Logged in (loading profile in background)...");
+          toast.success('✅ Logged in (loading profile in background)...');
         } else {
-          toast.success("🎉 Login successful! Redirecting...");
+          toast.success('🎉 Login successful! Redirecting...');
         }
-        router.push("/");
+        router.push('/');
       } else {
-        const msg = result?.message || "Login failed";
+        const msg = result?.message || 'Login failed';
         setError(msg);
         toast.error(msg);
       }
     } catch (err) {
-      console.error("Login error:", err);
-      const msg = err.message || "Failed to login. Please try again.";
+      console.error('Login error:', err);
+      const msg = err.message || 'Failed to login. Please try again.';
       setError(msg);
       toast.error(msg);
     } finally {
@@ -81,7 +81,7 @@ export default function LoginPage() {
               <div className="relative">
                 <input
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   className="input w-full"
                   value={form.password}
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   type="button"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <svg
@@ -130,7 +130,7 @@ export default function LoginPage() {
                 className="btn btn-primary w-full flex justify-center items-center"
                 disabled={loading}
               >
-                {loading ? "Signing in..." : "Login"}
+                {loading ? 'Signing in...' : 'Login'}
               </button>
             </form>
             <p className="text-center text-sm mt-4 text-[#C9BBF7]">
@@ -139,7 +139,7 @@ export default function LoginPage() {
               </Link>
             </p>
             <p className="mt-4 text-center text-sm text-[#C9BBF7]">
-              Don't have an account?
+              Don’t have an account?
               <Link
                 href="/users/signup"
                 className="text-[#8D7DFA] hover:underline font-semibold ml-1"
