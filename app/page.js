@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import Layout from "./components/Layout";
-import Loader from "./components/Loader";
-import ProductCard from "./components/ProductCard";
-import Link from "next/link";
-import { useAuth } from "./contexts/AuthContext";
-import { useToast } from "./contexts/ToastContext";
-import { useScrollAnimation } from "./hooks/useScrollAnimation";
+import React, { useEffect, useState } from 'react';
+import Layout from './components/Layout';
+import Loader from './components/Loader';
+import ProductCard from './components/ProductCard';
+import Link from 'next/link';
+import { useAuth } from './contexts/AuthContext';
+import { useToast } from './contexts/ToastContext';
+import { useScrollAnimation } from './hooks/useScrollAnimation';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -37,44 +37,44 @@ export default function Home() {
       // Sample products data
       const sampleProducts = [
         {
-          _id: "1",
-          name: "Elegant Summer Dress",
+          _id: '1',
+          name: 'Elegant Summer Dress',
           price: 2499,
           discount: 15,
-          description: "Perfect for summer outings",
+          description: 'Perfect for summer outings',
           category: "Women's Clothing",
           image:
-            "https://i.pinimg.com/736x/98/b2/93/98b2939c723b0dd7284e63378bb65ee6.jpg",
+            'https://i.pinimg.com/736x/98/b2/93/98b2939c723b0dd7284e63378bb65ee6.jpg',
         },
         {
-          _id: "2",
-          name: "Classic Denim Jacket",
+          _id: '2',
+          name: 'Classic Denim Jacket',
           price: 3299,
           discount: 10,
-          description: "Timeless style for all seasons",
+          description: 'Timeless style for all seasons',
           category: "Men's Fashion",
           image:
-            "https://i.pinimg.com/736x/82/48/ab/8248abc28ceab53fecca5d00b1f7986e.jpg",
+            'https://i.pinimg.com/736x/82/48/ab/8248abc28ceab53fecca5d00b1f7986e.jpg',
         },
         {
-          _id: "3",
-          name: "Designer Handbag",
+          _id: '3',
+          name: 'Designer Handbag',
           price: 4999,
           discount: 5,
-          description: "Elegant accessory for any occasion",
-          category: "Accessories",
+          description: 'Elegant accessory for any occasion',
+          category: 'Accessories',
           image:
-            "https://i.pinimg.com/736x/9b/a7/ec/9ba7ec043aecef2f1fc3e2525ee00066.jpg",
+            'https://i.pinimg.com/736x/9b/a7/ec/9ba7ec043aecef2f1fc3e2525ee00066.jpg',
         },
         {
-          _id: "4",
-          name: "Premium Leather Shoes",
+          _id: '4',
+          name: 'Premium Leather Shoes',
           price: 3599,
           discount: 20,
-          description: "Handcrafted for comfort and style",
-          category: "Footwear",
+          description: 'Handcrafted for comfort and style',
+          category: 'Footwear',
           image:
-            "https://i.pinimg.com/736x/83/24/e4/8324e4aa41326c46276416dca10b9677.jpg",
+            'https://i.pinimg.com/736x/83/24/e4/8324e4aa41326c46276416dca10b9677.jpg',
         },
       ];
 
@@ -115,11 +115,11 @@ export default function Home() {
       if (result.success) {
         toast.success(`🛒 Added ${quantity} of ${product.name} to cart`);
       } else {
-        toast.error(result.message || "Failed to add item to cart");
+        toast.error(result.message || 'Failed to add item to cart');
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.");
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -131,33 +131,33 @@ export default function Home() {
       <section
         ref={heroRef}
         className={`relative py-20 overflow-hidden transition-all duration-1000 ${
-          heroVisible ? "animate-fadeIn" : "opacity-0"
+          heroVisible ? 'animate-fadeIn' : 'opacity-0'
         }`}
       >
         {/* Background elements */}
         <div className="absolute inset-0 z-0">
           <div
             className={`absolute top-20 right-10 w-72 h-72 rounded-full bg-[#8D7DFA] opacity-10 blur-3xl transition-all duration-1000 ${
-              heroVisible ? "animate-floating" : ""
+              heroVisible ? 'animate-floating' : ''
             }`}
           ></div>
           <div
             className={`absolute bottom-10 left-10 w-80 h-80 rounded-full bg-[#C9BBF7] opacity-10 blur-3xl transition-all duration-1500 ${
-              heroVisible ? "animate-floating" : ""
+              heroVisible ? 'animate-floating' : ''
             }`}
-            style={{ animationDelay: "0.5s" }}
+            style={{ animationDelay: '0.5s' }}
           ></div>
         </div>
 
         <div className="relative z-10 container-custom">
           <div
             className={`flex flex-col-reverse md:flex-row items-center justify-between gap-12 transition-all duration-1000 ${
-              heroVisible ? "animate-fadeInUp" : "opacity-0 translate-y-8"
+              heroVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-8'
             }`}
           >
             <div
               className={`md:w-1/2 text-center md:text-left transition-all duration-1000 delay-300 ${
-                heroVisible ? "animate-fadeInLeft" : "opacity-0 -translate-x-8"
+                heroVisible ? 'animate-fadeInLeft' : 'opacity-0 -translate-x-8'
               }`}
             >
               <h1 className="mb-6">
@@ -170,7 +170,7 @@ export default function Home() {
               </p>
               <div
                 className={`flex flex-col sm:flex-row gap-4 justify-center md:justify-start transition-all duration-1000 delay-500 ${
-                  heroVisible ? "animate-fadeInUp" : "opacity-0 translate-y-4"
+                  heroVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-4'
                 }`}
               >
                 <Link
@@ -190,7 +190,7 @@ export default function Home() {
 
             <div
               className={`md:w-1/2 relative transition-all duration-1000 delay-700 ${
-                heroVisible ? "animate-fadeInRight" : "opacity-0 translate-x-8"
+                heroVisible ? 'animate-fadeInRight' : 'opacity-0 translate-x-8'
               }`}
             >
               {/* Product Carousel */}
@@ -283,8 +283,8 @@ export default function Home() {
                           onClick={() => goToSlide(index)}
                           className={`w-3 h-3 rounded-full transition-all duration-300 ${
                             index === currentSlide
-                              ? "bg-white scale-125"
-                              : "bg-white/50 hover:bg-white/75"
+                              ? 'bg-white scale-125'
+                              : 'bg-white/50 hover:bg-white/75'
                           }`}
                           aria-label={`Go to slide ${index + 1}`}
                         />
@@ -308,7 +308,7 @@ export default function Home() {
                       onClick={() => setIsAutoPlaying(!isAutoPlaying)}
                       className="absolute top-4 right-4 bg-white/20 backdrop-blur-md rounded-full p-2 text-white hover:bg-white/30 transition-all duration-300 z-10"
                       aria-label={
-                        isAutoPlaying ? "Pause slideshow" : "Play slideshow"
+                        isAutoPlaying ? 'Pause slideshow' : 'Play slideshow'
                       }
                     >
                       {isAutoPlaying ? (
@@ -348,18 +348,18 @@ export default function Home() {
       <section
         ref={productsRef}
         className={`py-16 min-h-screen flex items-center justify-center transition-all duration-1000 ${
-          productsVisible ? "animate-fadeIn" : "opacity-0"
+          productsVisible ? 'animate-fadeIn' : 'opacity-0'
         }`}
       >
         <div className="relative z-10 w-full max-w-6xl mx-auto">
           <div
             className={`backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 transition-all duration-1000 ${
-              productsVisible ? "animate-slideInUp" : "opacity-0 translate-y-8"
+              productsVisible ? 'animate-slideInUp' : 'opacity-0 translate-y-8'
             }`}
           >
             <div
               className={`flex items-center justify-between mb-10 transition-all duration-1000 delay-300 ${
-                productsVisible ? "animate-fadeInUp" : "opacity-0 translate-y-4"
+                productsVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-4'
               }`}
             >
               <div>
@@ -377,7 +377,7 @@ export default function Home() {
             </div>
             <div
               className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-1000 delay-500 ${
-                productsVisible ? "animate-fadeInUp" : "opacity-0 translate-y-8"
+                productsVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-8'
               }`}
             >
               {products.map((product) => (
@@ -396,22 +396,22 @@ export default function Home() {
       <section
         ref={categoriesRef}
         className={`py-16 relative overflow-hidden flex items-center justify-center transition-all duration-1000 ${
-          categoriesVisible ? "animate-fadeIn" : "opacity-0"
+          categoriesVisible ? 'animate-fadeIn' : 'opacity-0'
         }`}
       >
         <div className="relative z-10 w-full max-w-6xl mx-auto">
           <div
             className={`backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 transition-all duration-1000 ${
               categoriesVisible
-                ? "animate-slideInUp"
-                : "opacity-0 translate-y-8"
+                ? 'animate-slideInUp'
+                : 'opacity-0 translate-y-8'
             }`}
           >
             <div
               className={`text-center mb-12 transition-all duration-1000 delay-300 ${
                 categoriesVisible
-                  ? "animate-fadeInUp"
-                  : "opacity-0 translate-y-4"
+                  ? 'animate-fadeInUp'
+                  : 'opacity-0 translate-y-4'
               }`}
             >
               <h2 className="mb-4">Shop by Category</h2>
@@ -424,9 +424,9 @@ export default function Home() {
               <Link href="/categories/womens">
                 <div
                   className={`glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group transform ${
-                    categoriesVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+                    categoriesVisible ? 'animate-scaleIn' : 'opacity-0 scale-90'
                   }`}
-                  style={{ animationDelay: "0.6s" }}
+                  style={{ animationDelay: '0.6s' }}
                 >
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
                     <span className="text-3xl transition-transform duration-300 group-hover:scale-110">
@@ -434,7 +434,7 @@ export default function Home() {
                     </span>
                   </div>
                   <h3 className="mb-2 text-xl font-bold text-white">
-                    Women's Fashion
+                    Women’s Fashion
                   </h3>
                   <p className="text-[#C9BBF7] text-sm">
                     Elegant styles for every occasion
@@ -445,9 +445,9 @@ export default function Home() {
               <Link href="/categories/mens">
                 <div
                   className={`glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group transform ${
-                    categoriesVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+                    categoriesVisible ? 'animate-scaleIn' : 'opacity-0 scale-90'
                   }`}
-                  style={{ animationDelay: "0.8s" }}
+                  style={{ animationDelay: '0.8s' }}
                 >
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
                     <span className="text-3xl transition-transform duration-300 group-hover:scale-110">
@@ -455,7 +455,7 @@ export default function Home() {
                     </span>
                   </div>
                   <h3 className="mb-2 text-xl font-bold text-white">
-                    Men's Collection
+                    Men’s Collection
                   </h3>
                   <p className="text-[#C9BBF7] text-sm">
                     Contemporary styles for men
@@ -466,9 +466,9 @@ export default function Home() {
               <Link href="/categories/accessories">
                 <div
                   className={`glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group transform ${
-                    categoriesVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+                    categoriesVisible ? 'animate-scaleIn' : 'opacity-0 scale-90'
                   }`}
-                  style={{ animationDelay: "1.0s" }}
+                  style={{ animationDelay: '1.0s' }}
                 >
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
                     <span className="text-3xl transition-transform duration-300 group-hover:scale-110">
@@ -487,9 +487,9 @@ export default function Home() {
               <Link href="/categories/footwear">
                 <div
                   className={`glass-card p-6 text-center hover:shadow-[0_0_20px_rgba(141,125,250,0.3)] transition-all duration-300 group transform ${
-                    categoriesVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+                    categoriesVisible ? 'animate-scaleIn' : 'opacity-0 scale-90'
                   }`}
-                  style={{ animationDelay: "1.2s" }}
+                  style={{ animationDelay: '1.2s' }}
                 >
                   <div className="w-20 h-20 rounded-full bg-[#8D7DFA] bg-opacity-20 mx-auto mb-4 flex items-center justify-center">
                     <span className="text-3xl transition-transform duration-300 group-hover:scale-110">
@@ -513,18 +513,18 @@ export default function Home() {
       <section
         ref={featuresRef}
         className={`py-16 min-h-screen flex items-center justify-center transition-all duration-1000 ${
-          featuresVisible ? "animate-fadeIn" : "opacity-0"
+          featuresVisible ? 'animate-fadeIn' : 'opacity-0'
         }`}
       >
         <div className="relative z-10 w-full max-w-6xl mx-auto">
           <div
             className={`backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-10 transition-all duration-1000 ${
-              featuresVisible ? "animate-slideInUp" : "opacity-0 translate-y-8"
+              featuresVisible ? 'animate-slideInUp' : 'opacity-0 translate-y-8'
             }`}
           >
             <div
               className={`text-center mb-12 transition-all duration-1000 delay-300 ${
-                featuresVisible ? "animate-fadeInUp" : "opacity-0 translate-y-4"
+                featuresVisible ? 'animate-fadeInUp' : 'opacity-0 translate-y-4'
               }`}
             >
               <h2 className="mb-4">Why Choose Us</h2>
@@ -537,10 +537,10 @@ export default function Home() {
               <div
                 className={`glass-card p-8 text-center transition-all duration-1000 ${
                   featuresVisible
-                    ? "animate-slideInLeft"
-                    : "opacity-0 -translate-x-8"
+                    ? 'animate-slideInLeft'
+                    : 'opacity-0 -translate-x-8'
                 }`}
-                style={{ animationDelay: "0.6s" }}
+                style={{ animationDelay: '0.6s' }}
               >
                 <div className="w-16 h-16 rounded-full bg-[#ff70c0]/20 mx-auto mb-6 flex items-center justify-center">
                   <span className="text-3xl">🚀</span>
@@ -555,9 +555,9 @@ export default function Home() {
 
               <div
                 className={`glass-card p-8 text-center transition-all duration-1000 ${
-                  featuresVisible ? "animate-bounceIn" : "opacity-0 scale-50"
+                  featuresVisible ? 'animate-bounceIn' : 'opacity-0 scale-50'
                 }`}
-                style={{ animationDelay: "0.8s" }}
+                style={{ animationDelay: '0.8s' }}
               >
                 <div className="w-16 h-16 rounded-full bg-[#ff70c0]/20 mx-auto mb-6 flex items-center justify-center">
                   <span className="text-3xl">🛡️</span>
@@ -573,10 +573,10 @@ export default function Home() {
               <div
                 className={`glass-card p-8 text-center transition-all duration-1000 ${
                   featuresVisible
-                    ? "animate-slideInRight"
-                    : "opacity-0 translate-x-8"
+                    ? 'animate-slideInRight'
+                    : 'opacity-0 translate-x-8'
                 }`}
-                style={{ animationDelay: "1.0s" }}
+                style={{ animationDelay: '1.0s' }}
               >
                 <div className="w-16 h-16 rounded-full bg-[#ff70c0]/20 mx-auto mb-6 flex items-center justify-center">
                   <span className="text-3xl">⭐</span>
@@ -597,18 +597,18 @@ export default function Home() {
       <section
         ref={ctaRef}
         className={`py-16 min-h-screen flex items-center justify-center transition-all duration-1000 ${
-          ctaVisible ? "animate-fadeIn" : "opacity-0"
+          ctaVisible ? 'animate-fadeIn' : 'opacity-0'
         }`}
       >
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
           <div
             className={`backdrop-blur-xl bg-[#7c527c]/60 border border-white/10 rounded-3xl shadow-xl p-16 transition-all duration-1000 ${
-              ctaVisible ? "animate-scaleIn" : "opacity-0 scale-90"
+              ctaVisible ? 'animate-scaleIn' : 'opacity-0 scale-90'
             }`}
           >
             <div
               className={`transition-all duration-1000 delay-300 ${
-                ctaVisible ? "animate-bounceInUp" : "opacity-0 translate-y-8"
+                ctaVisible ? 'animate-bounceInUp' : 'opacity-0 translate-y-8'
               }`}
             >
               <h2 className="mb-6 text-5xl">Ready to Explore?</h2>
@@ -621,8 +621,8 @@ export default function Home() {
                   <button
                     className={`cta-button transition-all duration-1000 delay-600 ${
                       ctaVisible
-                        ? "animate-slideInLeft"
-                        : "opacity-0 -translate-x-8"
+                        ? 'animate-slideInLeft'
+                        : 'opacity-0 -translate-x-8'
                     }`}
                   >
                     Start Shopping
@@ -632,8 +632,8 @@ export default function Home() {
                   <button
                     className={`cta-button-secondary transition-all duration-1000 delay-800 ${
                       ctaVisible
-                        ? "animate-slideInRight"
-                        : "opacity-0 translate-x-8"
+                        ? 'animate-slideInRight'
+                        : 'opacity-0 translate-x-8'
                     }`}
                   >
                     Learn More

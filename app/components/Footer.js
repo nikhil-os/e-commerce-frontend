@@ -1,5 +1,5 @@
-import React from "react";
-import Link from "next/link";
+import React from 'react';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -97,7 +97,7 @@ export default function Footer() {
                   href="/categories/womens"
                   className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Women's Fashion
+                  Women’s Fashion
                 </Link>
               </li>
               <li>
@@ -105,7 +105,7 @@ export default function Footer() {
                   href="/categories/mens"
                   className="text-[#C9BBF7] hover:text-white hover:translate-x-1 transition-all duration-300 block"
                 >
-                  Men's Collection
+                  Men’s Collection
                 </Link>
               </li>
               <li>
