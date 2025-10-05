@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
-import { apiFetch } from '../../utils/apiClient';
+import { apiFetch, buildApiUrl } from '../../utils/apiClient';
 import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
@@ -67,7 +67,7 @@ export default function ProfilePage() {
     setLoading(false);
 
     // Fetch orders
-    apiFetch('https://e-commerce-backend-d25l.onrender.com/api/users/orders')
+    apiFetch(buildApiUrl('api/users/orders'))
       .then((res) => res.json())
       .then((data) => {
         const payload = data?.data || data || {};

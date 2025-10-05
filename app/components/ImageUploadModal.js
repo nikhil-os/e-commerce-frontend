@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useToast } from '../contexts/ToastContext';
-import { apiFetch } from '../utils/apiClient';
+import { apiFetch, buildApiUrl } from '../utils/apiClient';
 
 const ImageUploadModal = ({
   isOpen,
@@ -108,6 +108,12 @@ const ImageUploadModal = ({
   const uploadToCloudinary = async (file) => {
     // Check if Cloudinary is configured
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset =
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ||
+      'ecommerce_categories';
+    const uploadFolder =
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER ||
+      'ecommerce/categories';
 
     if (!cloudName) {
       // Fallback: Convert to base64 for demo purposes
@@ -120,8 +126,8 @@ const ImageUploadModal = ({
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'ecommerce_categories'); // You'll need to create this preset in Cloudinary
-    formData.append('folder', 'ecommerce/categories');
+    formData.append('upload_preset', uploadPreset); // Ensure this preset exists in Cloudinary
+    formData.append('folder', uploadFolder);
 
     try {
       const response = await fetch(
@@ -172,7 +178,7 @@ const ImageUploadModal = ({
 
       // Update category image via API
       const response = await apiFetch(
-        `https://e-commerce-backend-d25l.onrender.com/api/admin/categories/${categorySlug}/image`,
+        buildApiUrl(`api/admin/categories/${categorySlug}/image`),
         {
           method: 'PUT',
           headers: {
