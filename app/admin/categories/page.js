@@ -1,7 +1,9 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
-import Link from "next/link";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Layout from '../../components/Layout';
+import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiFetch } from '../../utils/apiClient';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -9,13 +11,14 @@ export default function ManageCategories() {
   const [error, setError] = useState(null);
 
   // Form state
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitMessage, setSubmitMessage] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
+  const { user } = useAuth();
 
   // Fetch categories
   useEffect(() => {
@@ -24,14 +27,17 @@ export default function ManageCategories() {
 
   const fetchCategories = async () => {
     try {
-  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/categories");
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/categories',
+        { skipAuth: true }
+      );
       const data = await response.json();
       if (data.categories) {
         setCategories(data.categories);
       }
     } catch (err) {
-      console.error("Error fetching categories:", err);
-      setError("Failed to load categories");
+      console.error('Error fetching categories:', err);
+      setError('Failed to load categories');
     } finally {
       setLoading(false);
     }
@@ -56,59 +62,60 @@ export default function ManageCategories() {
   const handleEdit = (category) => {
     setEditingCategory(category._id);
     setName(category.name);
-    setDescription(category.description || "");
+    setDescription(category.description || '');
     setImagePreview(category.imageUrl || null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitLoading(true);
-    setSubmitMessage("");
+    setSubmitMessage('');
+
+    if (!user || !user.isAdmin) {
+      setError('You must be logged in as an admin');
+      setSubmitLoading(false);
+      return;
+    }
 
     try {
       const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
+      formData.append('name', name);
+      formData.append('description', description);
 
       if (selectedImage) {
-        formData.append("categoryImage", selectedImage);
+        formData.append('categoryImage', selectedImage);
       }
 
-  let url = "https://e-commerce-backend-1-if2s.onrender.com/api/categories";
-      let method = "POST";
+      let url = 'https://e-commerce-backend-d25l.onrender.com/api/categories';
+      let method = 'POST';
 
       // If editing, use PUT request
       if (editingCategory) {
         url = `${url}/${editingCategory}`;
-        method = "PUT";
+        method = 'PUT';
       }
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("You must be logged in as an admin");
-        setSubmitLoading(false);
-        return;
-      }
-
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (response.ok) {
         setSubmitMessage(
-          `Category ${editingCategory ? "updated" : "created"} successfully!`
+          `Category ${editingCategory ? 'updated' : 'created'} successfully!`
         );
         // Reset form
-        setName("");
-        setDescription("");
+        setName('');
+        setDescription('');
         setSelectedImage(null);
         setImagePreview(null);
         setEditingCategory(null);
@@ -118,12 +125,12 @@ export default function ManageCategories() {
       } else {
         setError(
           data.message ||
-            `Failed to ${editingCategory ? "update" : "create"} category`
+            `Failed to ${editingCategory ? 'update' : 'create'} category`
         );
       }
     } catch (err) {
-      console.error("Error submitting category:", err);
-      setError("An error occurred. Please try again.");
+      console.error('Error submitting category:', err);
+      setError('An error occurred. Please try again.');
     } finally {
       setSubmitLoading(false);
     }
@@ -145,7 +152,7 @@ export default function ManageCategories() {
         {/* Category Form */}
         <div className="p-6 mb-8 bg-white rounded-lg shadow-md">
           <h2 className="mb-4 text-xl font-semibold">
-            {editingCategory ? "Edit Category" : "Add New Category"}
+            {editingCategory ? 'Edit Category' : 'Add New Category'}
           </h2>
 
           {submitMessage && (
@@ -221,10 +228,10 @@ export default function ManageCategories() {
                 disabled={submitLoading}
               >
                 {submitLoading
-                  ? "Processing..."
+                  ? 'Processing...'
                   : editingCategory
-                  ? "Update Category"
-                  : "Add Category"}
+                  ? 'Update Category'
+                  : 'Add Category'}
               </button>
 
               {editingCategory && (
@@ -232,8 +239,8 @@ export default function ManageCategories() {
                   type="button"
                   onClick={() => {
                     setEditingCategory(null);
-                    setName("");
-                    setDescription("");
+                    setName('');
+                    setDescription('');
                     setSelectedImage(null);
                     setImagePreview(null);
                   }}
@@ -282,7 +289,7 @@ export default function ManageCategories() {
                       </td>
                       <td className="p-2">{category.name}</td>
                       <td className="p-2">{category.slug}</td>
-                      <td className="p-2">{category.description || "-"}</td>
+                      <td className="p-2">{category.description || '-'}</td>
                       <td className="p-2">
                         <button
                           onClick={() => handleEdit(category)}

@@ -1,36 +1,43 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Layout from '../../components/Layout';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiFetch } from '../../utils/apiClient';
 
 export default function AddProductPage() {
   const [form, setForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    categorySlug: "",
+    name: '',
+    description: '',
+    price: '',
+    categorySlug: '',
     image: null,
-    imageUrl: "",
+    imageUrl: '',
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const { user } = useAuth();
 
   // Fetch categories when component mounts
   useEffect(() => {
-  fetch("https://e-commerce-backend-1-if2s.onrender.com/api/categories", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    const loadCategories = async () => {
+      try {
+        const res = await apiFetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/categories',
+          { skipAuth: true }
+        );
+        const data = await res.json();
         setCategories(data.categories || []);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError('Failed to load categories. Please try again.');
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching categories:", err);
-        setError("Failed to load categories. Please try again.");
-        setLoading(false);
-      });
+      }
+    };
+
+    loadCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -41,52 +48,62 @@ export default function AddProductPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccessMessage("");
+    setError('');
+    setSuccessMessage('');
+
+    if (!user || !user.isAdmin) {
+      setError('You must be logged in as an admin');
+      setLoading(false);
+      return;
+    }
 
     // Create a FormData object to handle file upload
     const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("description", form.description);
-    formData.append("price", form.price);
-    formData.append("categorySlug", form.categorySlug);
+    formData.append('name', form.name);
+    formData.append('description', form.description);
+    formData.append('price', form.price);
+    formData.append('categorySlug', form.categorySlug);
 
     // Handle either file upload or image URL
     if (form.image) {
-      formData.append("image", form.image);
+      formData.append('image', form.image);
     } else if (form.imageUrl) {
-      formData.append("imageUrl", form.imageUrl);
+      formData.append('imageUrl', form.imageUrl);
     }
 
     try {
-      const response = await fetch(
-  "https://e-commerce-backend-1-if2s.onrender.com/api/admin/add-product",
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/admin/add-product',
         {
-          method: "POST",
+          method: 'POST',
           body: formData,
-          credentials: "include", // Important for admin authentication
         }
       );
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (response.ok) {
-        setSuccessMessage("Product added successfully!");
+        setSuccessMessage('Product added successfully!');
         // Reset form
         setForm({
-          name: "",
-          description: "",
-          price: "",
-          categorySlug: "",
+          name: '',
+          description: '',
+          price: '',
+          categorySlug: '',
           image: null,
-          imageUrl: "",
+          imageUrl: '',
         });
       } else {
-        setError(data.message || "Failed to add product");
+        setError(data.message || 'Failed to add product');
       }
     } catch (error) {
-      console.error("Error adding product:", error);
-      setError("Failed to add product. Please try again.");
+      console.error('Error adding product:', error);
+      setError('Failed to add product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -154,8 +171,8 @@ export default function AddProductPage() {
             >
               <option value="">
                 {loading && categories.length === 0
-                  ? "Loading categories..."
-                  : "Select Category"}
+                  ? 'Loading categories...'
+                  : 'Select Category'}
               </option>
               {categories.map((category) => (
                 <option key={category._id} value={category.slug}>
@@ -189,13 +206,13 @@ export default function AddProductPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`px-4 py-2 rounded text-white ${
+            className={`px-4 py-2 rounded font-medium transition-colors border ${
               loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50'
             }`}
           >
-            {loading ? "Adding Product..." : "Add Product"}
+            {loading ? 'Adding Product...' : 'Add Product'}
           </button>
         </form>
       </main>

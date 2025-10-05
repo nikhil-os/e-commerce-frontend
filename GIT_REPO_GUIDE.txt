@@ -18,7 +18,7 @@ Recent Structural Actions Already Done:
   - Removed nested duplicate directories (flattened structure).
   - Added CI workflow (.github/workflows/ci.yml).
   - Added .editorconfig.
-  - Replaced localhost:5000 backend URLs with production: https://e-commerce-backend-1-if2s.onrender.com
+  - Replaced localhost:5000 backend URLs with production: https://e-commerce-backend-d25l.onrender.com
   - Hardened Auth flow: optimistic login, token capture, profile retry, token persistence in localStorage.
   - Normalized product rendering to avoid React object child errors.
 
@@ -176,7 +176,7 @@ Prune remote-tracking branches:
 SECTION 9: BACKEND INTERACTION REMINDER
 ----------------------------------------------------------------
 Current production backend base URL used in frontend code:
-  https://e-commerce-backend-1-if2s.onrender.com
+  https://e-commerce-backend-d25l.onrender.com
 If backend changes, update in a central config (future improvement: move to env var NEXT_PUBLIC_API_BASE).
 
 Auth Expectations:

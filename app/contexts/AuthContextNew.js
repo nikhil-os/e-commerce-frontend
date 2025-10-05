@@ -1,6 +1,6 @@
-"use client";
-import { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+'use client';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext();
 
@@ -15,9 +15,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
-          credentials: "include",
-        });
+        const res = await fetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
+          {
+            credentials: 'include',
+          }
+        );
 
         if (res.ok) {
           const data = await res.json();
@@ -26,7 +29,7 @@ export function AuthProvider({ children }) {
           fetchCartData();
         }
       } catch (error) {
-        console.error("Error fetching user profile:", error);
+        console.error('Error fetching user profile:', error);
       } finally {
         setLoading(false);
       }
@@ -38,9 +41,12 @@ export function AuthProvider({ children }) {
   // Function to fetch cart data
   const fetchCartData = async () => {
     try {
-  const res = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart/cart", {
-        credentials: "include",
-      });
+      const res = await fetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/cart/cart',
+        {
+          credentials: 'include',
+        }
+      );
 
       if (res.ok) {
         const data = await res.json();
@@ -52,32 +58,38 @@ export function AuthProvider({ children }) {
         );
       }
     } catch (error) {
-      console.error("Error fetching cart:", error);
+      console.error('Error fetching cart:', error);
     }
   };
 
   // Login function
   const login = async (credentials) => {
     try {
-  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-        credentials: "include",
-      });
+      const response = await fetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(credentials),
+          credentials: 'include',
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data.message || 'Login failed');
       }
 
       // Fetch user data after login
-  const userRes = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/profile", {
-        credentials: "include",
-      });
+      const userRes = await fetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
+        {
+          credentials: 'include',
+        }
+      );
 
       if (userRes.ok) {
         const userData = await userRes.json();
@@ -95,56 +107,62 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-  await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/users/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await fetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/logout',
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
 
       setUser(null);
       setCartItems([]);
       setCartCount(0);
-      router.push("/");
+      router.push('/');
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error('Error during logout:', error);
     }
   };
 
   // Add to cart function
   const addToCart = async (productId, quantity = 1) => {
     if (!user) {
-      router.push("/users/login");
-      return { success: false, message: "Please login to add items to cart" };
+      router.push('/users/login');
+      return { success: false, message: 'Please login to add items to cart' };
     }
 
     try {
-      console.log("Adding to cart:", productId, quantity);
+      console.log('Adding to cart:', productId, quantity);
       // Ensure productId is a valid MongoDB ObjectId (24 character hex string)
       if (
         !productId ||
-        typeof productId !== "string" ||
+        typeof productId !== 'string' ||
         !/^[0-9a-fA-F]{24}$/.test(productId)
       ) {
-        return { success: false, message: "Invalid product ID format" };
+        return { success: false, message: 'Invalid product ID format' };
       }
 
-  const response = await fetch("https://e-commerce-backend-1-if2s.onrender.com/api/cart/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ productId, quantity }),
-        credentials: "include",
-      });
+      const response = await fetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/cart/cart',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId, quantity }),
+          credentials: 'include',
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to add item to cart");
+        throw new Error(data.message || 'Failed to add item to cart');
       }
 
       // Refresh cart data
       await fetchCartData();
-      return { success: true, message: "Item added to cart" };
+      return { success: true, message: 'Item added to cart' };
     } catch (error) {
       return { success: false, message: error.message };
     }
@@ -154,21 +172,21 @@ export function AuthProvider({ children }) {
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await fetch(
-  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
+        `https://e-commerce-backend-d25l.onrender.com/api/cart/update/${productId}`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({ quantity }),
-          credentials: "include",
+          credentials: 'include',
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to update cart");
+        throw new Error(data.message || 'Failed to update cart');
       }
 
       // Update local state
@@ -188,17 +206,17 @@ export function AuthProvider({ children }) {
   const removeFromCart = async (productId) => {
     try {
       const response = await fetch(
-  `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
+        `https://e-commerce-backend-d25l.onrender.com/api/cart/remove/${productId}`,
         {
-          method: "POST",
-          credentials: "include",
+          method: 'POST',
+          credentials: 'include',
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to remove item from cart");
+        throw new Error(data.message || 'Failed to remove item from cart');
       }
 
       // Update local state

@@ -8,6 +8,12 @@ import {
   useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  apiFetch,
+  clearStoredToken,
+  getStoredToken,
+  setStoredToken,
+} from '../utils/apiClient';
 
 const AuthContext = createContext();
 
@@ -15,39 +21,31 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authToken, setAuthToken] = useState(null); // optional bearer token fallback
   const tokenRestoredRef = useRef(false);
-  const TOKEN_KEY = 'authToken';
   const [loading, setLoading] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
-  const readStoredToken = useCallback(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      return localStorage.getItem(TOKEN_KEY);
-    } catch {
-      return null;
-    }
-  }, []);
-
-  const buildAuthHeaders = useCallback(
-    (tokenOverride) => {
-      const token = tokenOverride ?? authToken ?? readStoredToken();
-      return token ? { Authorization: `Bearer ${token}` } : undefined;
+  const persistAuthToken = useCallback(
+    (token) => {
+      setAuthToken(token);
+      if (token) {
+        setStoredToken(token);
+      } else {
+        clearStoredToken();
+      }
     },
-    [authToken, readStoredToken]
+    [setStoredToken, clearStoredToken]
   );
 
   // Function to fetch cart data
   const fetchCartData = useCallback(
     async (tokenOverride) => {
       try {
-        const headers = buildAuthHeaders(tokenOverride);
-        const res = await fetch(
-          'https://e-commerce-backend-1-if2s.onrender.com/api/cart',
+        const res = await apiFetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/cart',
           {
-            credentials: 'include',
-            ...(headers ? { headers } : {}),
+            token: tokenOverride ?? authToken ?? getStoredToken(),
           }
         );
 
@@ -64,22 +62,18 @@ export function AuthProvider({ children }) {
         console.error('Error fetching cart:', error);
       }
     },
-    [buildAuthHeaders]
+    [authToken]
   );
 
   // Fetch user profile on initial load with debouncing
   // 1. Restore token from localStorage (runs once on mount)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(TOKEN_KEY);
-      if (stored) {
-        setAuthToken(stored);
-        tokenRestoredRef.current = true;
-      } else {
-        tokenRestoredRef.current = true; // nothing to restore
-      }
+    const stored = getStoredToken();
+    if (stored) {
+      persistAuthToken(stored);
     }
-  }, []);
+    tokenRestoredRef.current = true;
+  }, [persistAuthToken]);
 
   // 2. Fetch profile after token restoration OR when authToken changes (and user not yet loaded)
   useEffect(() => {
@@ -94,12 +88,10 @@ export function AuthProvider({ children }) {
     // Debounce the fetch to prevent multiple rapid calls
     const timeoutId = setTimeout(async () => {
       try {
-        const headers = buildAuthHeaders();
-        const res = await fetch(
-          'https://e-commerce-backend-1-if2s.onrender.com/api/users/profile',
+        const res = await apiFetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
           {
-            credentials: 'include',
-            ...(headers ? { headers } : {}),
+            token: authToken ?? getStoredToken(),
           }
         );
         if (!res.ok) {
@@ -126,18 +118,18 @@ export function AuthProvider({ children }) {
     }, 100); // 100ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [authToken, user, buildAuthHeaders, fetchCartData]);
+  }, [authToken, user, fetchCartData]);
 
   // Login function
   const login = async (credentials) => {
     try {
-      const response = await fetch(
-        'https://e-commerce-backend-1-if2s.onrender.com/api/users/login',
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/login',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(credentials),
-          credentials: 'include',
+          skipAuth: true,
         }
       );
 
@@ -163,13 +155,17 @@ export function AuthProvider({ children }) {
       };
 
       const pickToken = (...candidates) =>
-        candidates.find((value) => typeof value === 'string' && value.trim().length > 0) || null;
+        candidates.find(
+          (value) => typeof value === 'string' && value.trim().length > 0
+        ) || null;
 
       const headerAuth =
         response.headers.get('authorization') ||
         response.headers.get('Authorization');
       const headerBearer = normalizeHeaderToken(headerAuth);
-      const headerToken = normalizeHeaderToken(response.headers.get('x-auth-token'));
+      const headerToken = normalizeHeaderToken(
+        response.headers.get('x-auth-token')
+      );
 
       // If backend already returns user, optimistically set it so UI updates immediately
       // Capture token (if backend uses token-based auth instead of / in addition to cookies)
@@ -186,14 +182,10 @@ export function AuthProvider({ children }) {
       );
 
       if (possibleToken) {
-        setAuthToken(possibleToken);
-        try {
-          if (typeof window !== 'undefined')
-            localStorage.setItem(TOKEN_KEY, possibleToken);
-        } catch {}
+        persistAuthToken(possibleToken);
       }
 
-      const sessionToken = possibleToken || readStoredToken();
+      const sessionToken = possibleToken || getStoredToken();
 
       if (data?.user) {
         setUser(data.user);
@@ -203,12 +195,10 @@ export function AuthProvider({ children }) {
       }
       // Attempt to fetch user profile (retry up to 2 times if it fails – cookies may not be available immediately)
       const attemptProfileFetch = async () => {
-        const headers = buildAuthHeaders(sessionToken);
-        const res = await fetch(
-          'https://e-commerce-backend-1-if2s.onrender.com/api/users/profile',
+        const res = await apiFetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
           {
-            credentials: 'include',
-            ...(headers ? { headers } : {}),
+            token: sessionToken,
           }
         );
         if (!res.ok) {
@@ -261,21 +251,15 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-      const headers = buildAuthHeaders();
-      await fetch(
-        'https://e-commerce-backend-1-if2s.onrender.com/api/users/logout',
+      await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/logout',
         {
           method: 'POST',
-          credentials: 'include',
-          ...(headers ? { headers } : {}),
         }
       );
 
       setUser(null);
-      setAuthToken(null);
-      try {
-        if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY);
-      } catch {}
+      persistAuthToken(null);
       setCartItems([]);
       setCartCount(0);
       router.push('/');
@@ -305,17 +289,14 @@ export function AuthProvider({ children }) {
       // Log the token cookie before making the request
       console.log('Cookies before fetch:', document.cookie);
 
-      const authHeaders = buildAuthHeaders();
-      const response = await fetch(
-        'https://e-commerce-backend-1-if2s.onrender.com/api/cart',
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/cart',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(authHeaders || {}),
           },
           body: JSON.stringify({ productId, quantity }),
-          credentials: 'include',
         }
       );
 
@@ -336,17 +317,14 @@ export function AuthProvider({ children }) {
   // Update cart item quantity
   const updateCartItem = async (productId, quantity) => {
     try {
-      const authHeaders = buildAuthHeaders();
-      const response = await fetch(
-        `https://e-commerce-backend-1-if2s.onrender.com/api/cart/update/${productId}`,
+      const response = await apiFetch(
+        `https://e-commerce-backend-d25l.onrender.com/api/cart/update/${productId}`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(authHeaders || {}),
           },
           body: JSON.stringify({ quantity }),
-          credentials: 'include',
         }
       );
 
@@ -395,13 +373,10 @@ export function AuthProvider({ children }) {
   // Remove from cart
   const removeFromCart = async (productId) => {
     try {
-      const headers = buildAuthHeaders();
-      const response = await fetch(
-        `https://e-commerce-backend-1-if2s.onrender.com/api/cart/remove/${productId}`,
+      const response = await apiFetch(
+        `https://e-commerce-backend-d25l.onrender.com/api/cart/remove/${productId}`,
         {
           method: 'POST',
-          credentials: 'include',
-          ...(headers ? { headers } : {}),
         }
       );
 
@@ -452,6 +427,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         authToken,
+        saveAuthToken: persistAuthToken,
         loading,
         login,
         logout,
