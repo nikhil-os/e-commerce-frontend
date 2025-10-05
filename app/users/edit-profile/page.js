@@ -1,40 +1,41 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Layout from "../../components/Layout";
-import { useAuth } from "../../contexts/AuthContext";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Layout from '../../components/Layout';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { apiFetch } from '../../utils/apiClient';
 
 export default function EditProfilePage() {
   const { user: authUser } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
-    fullname: "",
-    contact: "",
-    location: "",
+    fullname: '',
+    contact: '',
+    location: '',
     profilepic: null,
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     if (!authUser) {
-      router.push("/users/login");
+      router.push('/users/login');
       return;
     }
 
     // Pre-fill form with current user data
     setForm({
-      fullname: authUser.fullname || "",
-      contact: authUser.contact || "",
-      location: authUser.location || "",
+      fullname: authUser.fullname || '',
+      contact: authUser.contact || '',
+      location: authUser.location || '',
       profilepic: null,
     });
   }, [authUser, router]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "profilepic" && files[0]) {
+    if (name === 'profilepic' && files[0]) {
       setForm((f) => ({ ...f, [name]: files[0] }));
       // Create preview
       const reader = new FileReader();
@@ -48,22 +49,21 @@ export default function EditProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
+    setMessage('');
 
     try {
       const formData = new FormData();
-      formData.append("fullname", form.fullname);
-      formData.append("contact", form.contact);
-      formData.append("location", form.location);
+      formData.append('fullname', form.fullname);
+      formData.append('contact', form.contact);
+      formData.append('location', form.location);
       if (form.profilepic) {
-        formData.append("profilepic", form.profilepic);
+        formData.append('profilepic', form.profilepic);
       }
 
-      const response = await fetch(
-        "http://localhost:5000/api/users/update-profile",
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/update-profile',
         {
-          method: "POST",
-          credentials: "include",
+          method: 'POST',
           body: formData,
         }
       );
@@ -71,14 +71,14 @@ export default function EditProfilePage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage("Profile updated successfully!");
-        setTimeout(() => router.push("/users/profile"), 2000);
+        setMessage('Profile updated successfully!');
+        setTimeout(() => router.push('/users/profile'), 2000);
       } else {
-        setMessage(data.message || "Failed to update profile");
+        setMessage(data.message || 'Failed to update profile');
       }
     } catch (error) {
-      setMessage("An error occurred while updating profile");
-      console.error("Update error:", error);
+      setMessage('An error occurred while updating profile');
+      console.error('Update error:', error);
     } finally {
       setLoading(false);
     }
@@ -120,7 +120,7 @@ export default function EditProfilePage() {
                     ) : (
                       <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#8f6690] to-[#b278a8] flex items-center justify-center shadow-xl border-4 border-white">
                         <span className="text-2xl font-bold text-white">
-                          {authUser?.fullname?.charAt(0)?.toUpperCase() || "👤"}
+                          {authUser?.fullname?.charAt(0)?.toUpperCase() || '👤'}
                         </span>
                       </div>
                     )}
@@ -193,9 +193,9 @@ export default function EditProfilePage() {
                 {message && (
                   <div
                     className={`p-4 rounded-xl ${
-                      message.includes("success")
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : "bg-red-100 text-red-800 border border-red-200"
+                      message.includes('success')
+                        ? 'bg-green-100 text-green-800 border border-green-200'
+                        : 'bg-red-100 text-red-800 border border-red-200'
                     }`}
                   >
                     {message}
@@ -221,7 +221,7 @@ export default function EditProfilePage() {
 
                   <button
                     type="button"
-                    onClick={() => router.push("/users/profile")}
+                    onClick={() => router.push('/users/profile')}
                     className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-300 transition-all flex items-center justify-center gap-2"
                   >
                     🔙 Back to Profile

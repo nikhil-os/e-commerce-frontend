@@ -1,104 +1,104 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
-import Link from "next/link";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import ImageUploadModal from "../components/ImageUploadModal";
-import { getCategoryImage, getCategoryAlt } from "../utils/categoryImages";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import Link from 'next/link';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import ImageUploadModal from '../components/ImageUploadModal';
+import { getCategoryImage, getCategoryAlt } from '../utils/categoryImages';
 
 // Fallback categories in case API fails
 const fallbackCategories = [
   {
-    slug: "womens-fashion",
+    slug: 'womens-fashion',
     name: "Women's Fashion",
-    description: "Trendy and elegant dresses, tops, and ethnic wear.",
+    description: 'Trendy and elegant dresses, tops, and ethnic wear.',
     imageUrl:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=600&fit=crop&crop=face",
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=600&fit=crop&crop=face',
   },
   {
-    slug: "mens-fashion",
+    slug: 'mens-fashion',
     name: "Men's Fashion",
-    description: "Contemporary styles for men.",
+    description: 'Contemporary styles for men.',
     imageUrl:
-      "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "accessories",
-    name: "Accessories",
-    description: "Chic earrings, watches, sunglasses and more.",
+    slug: 'accessories',
+    name: 'Accessories',
+    description: 'Chic earrings, watches, sunglasses and more.',
     imageUrl:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "footwear",
-    name: "Footwear",
-    description: "Stylish heels, sneakers, and traditional footwear.",
+    slug: 'footwear',
+    name: 'Footwear',
+    description: 'Stylish heels, sneakers, and traditional footwear.',
     imageUrl:
-      "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "electronics",
-    name: "Electronics",
-    description: "Latest gadgets & electronic devices",
+    slug: 'electronics',
+    name: 'Electronics',
+    description: 'Latest gadgets & electronic devices',
     imageUrl:
-      "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "home-appliances",
-    name: "Home Appliances",
-    description: "Essential appliances for your home",
+    slug: 'home-appliances',
+    name: 'Home Appliances',
+    description: 'Essential appliances for your home',
     imageUrl:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "beauty-health",
-    name: "Beauty & Health",
-    description: "Skincare, makeup, and wellness products",
+    slug: 'beauty-health',
+    name: 'Beauty & Health',
+    description: 'Skincare, makeup, and wellness products',
     imageUrl:
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "sports-fitness",
-    name: "Sports & Fitness",
-    description: "Workout gear, sports equipment, and activewear",
+    slug: 'sports-fitness',
+    name: 'Sports & Fitness',
+    description: 'Workout gear, sports equipment, and activewear',
     imageUrl:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "books-media",
-    name: "Books & Media",
-    description: "Books, magazines, and digital content",
+    slug: 'books-media',
+    name: 'Books & Media',
+    description: 'Books, magazines, and digital content',
     imageUrl:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "home-garden",
-    name: "Home & Garden",
-    description: "Furniture, decor, and gardening supplies",
+    slug: 'home-garden',
+    name: 'Home & Garden',
+    description: 'Furniture, decor, and gardening supplies',
     imageUrl:
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "toys-games",
-    name: "Toys & Games",
-    description: "Fun for kids and adults alike",
+    slug: 'toys-games',
+    name: 'Toys & Games',
+    description: 'Fun for kids and adults alike',
     imageUrl:
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&h=600&fit=crop&crop=center',
   },
   {
-    slug: "automotive",
-    name: "Automotive",
-    description: "Car accessories and maintenance products",
+    slug: 'automotive',
+    name: 'Automotive',
+    description: 'Car accessories and maintenance products',
     imageUrl:
-      "https://images.unsplash.com/photo-1494905998402-395d579af36f?w=800&h=600&fit=crop&crop=center",
+      'https://images.unsplash.com/photo-1494905998402-395d579af36f?w=800&h=600&fit=crop&crop=center',
   },
 ];
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { user } = useAuth();
@@ -127,18 +127,18 @@ export default function CategoriesPage() {
     }));
   };
 
-  const handleImageError = (slug, currentAttempt = "primary") => {
-    if (currentAttempt === "primary") {
+  const handleImageError = (slug, currentAttempt = 'primary') => {
+    if (currentAttempt === 'primary') {
       // Try secondary image
       setImageLoadingStates((prev) => ({
         ...prev,
-        [slug]: "secondary",
+        [slug]: 'secondary',
       }));
     } else {
       // Mark as error
       setImageLoadingStates((prev) => ({
         ...prev,
-        [slug]: "error",
+        [slug]: 'error',
       }));
     }
   };
@@ -152,7 +152,7 @@ export default function CategoriesPage() {
       }));
     });
 
-    fetch("http://localhost:5000/api/categories")
+    fetch('https://e-commerce-backend-d25l.onrender.com/api/categories')
       .then((res) => res.json())
       .then((data) => {
         if (data.categories && data.categories.length > 0) {
@@ -164,7 +164,7 @@ export default function CategoriesPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching categories:", err);
+        console.error('Error fetching categories:', err);
         // Use fallback categories on error
         setCategories(fallbackCategories);
         setLoading(false);
@@ -225,7 +225,7 @@ export default function CategoriesPage() {
                             <div className="w-8 h-8 border-white rounded-full border-3 border-t-transparent animate-spin"></div>
                           </div>
                         )}
-                        {imageLoadingStates[cat.slug] === "error" ? (
+                        {imageLoadingStates[cat.slug] === 'error' ? (
                           <div className="flex flex-col items-center justify-center h-full text-white/60">
                             <svg
                               className="w-10 h-10 mb-1"
@@ -250,22 +250,22 @@ export default function CategoriesPage() {
                                 cat.image ||
                                 getCategoryImage(
                                   cat.slug,
-                                  imageLoadingStates[cat.slug] === "secondary"
+                                  imageLoadingStates[cat.slug] === 'secondary'
                                 )
                               }
                               alt={getCategoryAlt(cat.slug, cat.name)}
                               className={`object-cover w-full h-full transition-all duration-500 group-hover:scale-105 ${
                                 imageLoadingStates[cat.slug] === true
-                                  ? "opacity-0"
-                                  : "opacity-100"
+                                  ? 'opacity-0'
+                                  : 'opacity-100'
                               }`}
                               onLoad={() => handleImageLoad(cat.slug)}
                               onError={() =>
                                 handleImageError(
                                   cat.slug,
-                                  imageLoadingStates[cat.slug] === "secondary"
-                                    ? "secondary"
-                                    : "primary"
+                                  imageLoadingStates[cat.slug] === 'secondary'
+                                    ? 'secondary'
+                                    : 'primary'
                                 )
                               }
                               loading="lazy"

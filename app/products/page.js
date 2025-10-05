@@ -1,100 +1,100 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Layout from "../components/Layout";
-import ProductCard from "../components/ProductCard";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import Link from "next/link";
+'use client';
+import React, { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
+import ProductCard from '../components/ProductCard';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import Link from 'next/link';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [searchTerm, setSearchTerm] = useState('');
   const { addToCart } = useAuth();
   const toast = useToast();
 
   // Fallback products in case API fails
   const fallbackProducts = [
     {
-      _id: "fallback-1",
-      name: "Elegant Summer Dress",
+      _id: 'fallback-1',
+      name: 'Elegant Summer Dress',
       price: 2499,
       discount: 15,
-      description: "Perfect for summer outings",
-      category: { name: "Women's Fashion", slug: "womens-fashion" },
+      description: 'Perfect for summer outings',
+      category: { name: "Women's Fashion", slug: 'womens-fashion' },
       imageUrl:
-        "https://i.pinimg.com/736x/98/b2/93/98b2939c723b0dd7284e63378bb65ee6.jpg",
+        'https://i.pinimg.com/736x/98/b2/93/98b2939c723b0dd7284e63378bb65ee6.jpg',
     },
     {
-      _id: "fallback-2",
-      name: "Classic Denim Jacket",
+      _id: 'fallback-2',
+      name: 'Classic Denim Jacket',
       price: 3299,
       discount: 10,
-      description: "Timeless style for all seasons",
-      category: { name: "Men's Fashion", slug: "mens-fashion" },
+      description: 'Timeless style for all seasons',
+      category: { name: "Men's Fashion", slug: 'mens-fashion' },
       imageUrl:
-        "https://i.pinimg.com/736x/82/48/ab/8248abc28ceab53fecca5d00b1f7986e.jpg",
+        'https://i.pinimg.com/736x/82/48/ab/8248abc28ceab53fecca5d00b1f7986e.jpg',
     },
     {
-      _id: "fallback-3",
-      name: "Designer Handbag",
+      _id: 'fallback-3',
+      name: 'Designer Handbag',
       price: 4999,
       discount: 5,
-      description: "Elegant accessory for any occasion",
-      category: { name: "Accessories", slug: "accessories" },
+      description: 'Elegant accessory for any occasion',
+      category: { name: 'Accessories', slug: 'accessories' },
       imageUrl:
-        "https://i.pinimg.com/736x/9b/a7/ec/9ba7ec043aecef2f1fc3e2525ee00066.jpg",
+        'https://i.pinimg.com/736x/9b/a7/ec/9ba7ec043aecef2f1fc3e2525ee00066.jpg',
     },
     {
-      _id: "fallback-4",
-      name: "Premium Leather Shoes",
+      _id: 'fallback-4',
+      name: 'Premium Leather Shoes',
       price: 3599,
       discount: 20,
-      description: "Handcrafted for comfort and style",
-      category: { name: "Footwear", slug: "footwear" },
+      description: 'Handcrafted for comfort and style',
+      category: { name: 'Footwear', slug: 'footwear' },
       imageUrl:
-        "https://i.pinimg.com/736x/83/24/e4/8324e4aa41326c46276416dca10b9677.jpg",
+        'https://i.pinimg.com/736x/83/24/e4/8324e4aa41326c46276416dca10b9677.jpg',
     },
     {
-      _id: "fallback-5",
-      name: "Wireless Headphones",
+      _id: 'fallback-5',
+      name: 'Wireless Headphones',
       price: 4299,
       discount: 25,
-      description: "Premium sound quality with noise cancellation",
-      category: { name: "Electronics", slug: "electronics" },
+      description: 'Premium sound quality with noise cancellation',
+      category: { name: 'Electronics', slug: 'electronics' },
       imageUrl:
-        "https://i.pinimg.com/736x/f1/2d/3c/f12d3c8e9b4a7f8c6d5e4f3a2b1c0d9e.jpg",
+        'https://i.pinimg.com/736x/f1/2d/3c/f12d3c8e9b4a7f8c6d5e4f3a2b1c0d9e.jpg',
     },
     {
-      _id: "fallback-6",
-      name: "Skincare Set",
+      _id: 'fallback-6',
+      name: 'Skincare Set',
       price: 2799,
       discount: 30,
-      description: "Complete skincare routine for glowing skin",
-      category: { name: "Beauty & Health", slug: "beauty-health" },
+      description: 'Complete skincare routine for glowing skin',
+      category: { name: 'Beauty & Health', slug: 'beauty-health' },
       imageUrl:
-        "https://i.pinimg.com/736x/a1/b2/c3/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6.jpg",
+        'https://i.pinimg.com/736x/a1/b2/c3/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6.jpg',
     },
   ];
 
   const fallbackCategories = [
-    { name: "Women's Fashion", slug: "womens-fashion" },
-    { name: "Men's Fashion", slug: "mens-fashion" },
-    { name: "Accessories", slug: "accessories" },
-    { name: "Footwear", slug: "footwear" },
-    { name: "Electronics", slug: "electronics" },
-    { name: "Beauty & Health", slug: "beauty-health" },
+    { name: "Women's Fashion", slug: 'womens-fashion' },
+    { name: "Men's Fashion", slug: 'mens-fashion' },
+    { name: 'Accessories', slug: 'accessories' },
+    { name: 'Footwear', slug: 'footwear' },
+    { name: 'Electronics', slug: 'electronics' },
+    { name: 'Beauty & Health', slug: 'beauty-health' },
   ];
 
   useEffect(() => {
     Promise.all([
-      fetch("http://localhost:5000/api/products")
+      fetch('https://e-commerce-backend-d25l.onrender.com/api/products')
         .then((res) => res.json())
         .catch(() => ({ products: [] })),
-      fetch("http://localhost:5000/api/categories")
+      fetch('https://e-commerce-backend-d25l.onrender.com/api/categories')
         .then((res) => res.json())
         .catch(() => ({ categories: [] })),
     ])
@@ -113,7 +113,7 @@ export default function ProductsPage() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
         setProducts(fallbackProducts);
         setCategories(fallbackCategories);
         setLoading(false);
@@ -123,7 +123,7 @@ export default function ProductsPage() {
   const handleAddToCart = async (product, quantity) => {
     try {
       if (!product || !product._id) {
-        toast.error("Invalid product data");
+        toast.error('Invalid product data');
         return;
       }
 
@@ -131,11 +131,11 @@ export default function ProductsPage() {
       if (result.success) {
         toast.success(`🛒 Added ${quantity} of ${product.name} to cart`);
       } else {
-        toast.error(result.message || "Failed to add item to cart");
+        toast.error(result.message || 'Failed to add item to cart');
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.");
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -143,7 +143,7 @@ export default function ProductsPage() {
   const filteredProducts = products
     .filter((product) => {
       const matchesCategory =
-        selectedCategory === "all" ||
+        selectedCategory === 'all' ||
         product.category?.name?.toLowerCase() === selectedCategory ||
         product.category?.slug?.toLowerCase() === selectedCategory;
       const matchesSearch =
@@ -153,11 +153,11 @@ export default function ProductsPage() {
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case "price-low":
+        case 'price-low':
           return a.price - b.price;
-        case "price-high":
+        case 'price-high':
           return b.price - a.price;
-        case "name":
+        case 'name':
           return a.name.localeCompare(b.name);
         default:
           return 0;
@@ -300,20 +300,20 @@ export default function ProductsPage() {
               {/* Results Info */}
               <div className="flex items-center justify-between">
                 <p className="text-[#C9BBF7]">
-                  Showing {filteredProducts.length} of {products.length}{" "}
+                  Showing {filteredProducts.length} of {products.length}{' '}
                   products
-                  {selectedCategory !== "all" && (
+                  {selectedCategory !== 'all' && (
                     <span className="ml-2 px-3 py-1 bg-[#8D7DFA]/20 rounded-full text-sm">
                       {categories.find((cat) => cat.slug === selectedCategory)
                         ?.name || selectedCategory}
                     </span>
                   )}
                 </p>
-                {(selectedCategory !== "all" || searchTerm) && (
+                {(selectedCategory !== 'all' || searchTerm) && (
                   <button
                     onClick={() => {
-                      setSelectedCategory("all");
-                      setSearchTerm("");
+                      setSelectedCategory('all');
+                      setSearchTerm('');
                     }}
                     className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-[#C9BBF7] hover:text-white transition-all duration-300"
                   >
@@ -360,8 +360,8 @@ export default function ProductsPage() {
                 </p>
                 <button
                   onClick={() => {
-                    setSelectedCategory("all");
-                    setSearchTerm("");
+                    setSelectedCategory('all');
+                    setSearchTerm('');
                   }}
                   className="btn btn-primary"
                 >

@@ -1,10 +1,10 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Layout from "../../components/Layout";
-import ProductCard from "../../components/ProductCard";
-import { useAuth } from "../../contexts/AuthContext";
-import { useToast } from "../../contexts/ToastContext";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import Layout from '../../components/Layout';
+import ProductCard from '../../components/ProductCard';
+import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function ProductsByCategoryPage() {
   const params = useParams();
@@ -17,25 +17,25 @@ export default function ProductsByCategoryPage() {
   // Fallback products in case API fails
   const fallbackProducts = [
     {
-      _id: "p1",
-      name: "Stylish T-Shirt",
+      _id: 'p1',
+      name: 'Stylish T-Shirt',
       price: 999,
-      image: "https://via.placeholder.com/300x200?text=T-Shirt",
-      description: "Comfortable and stylish t-shirt for everyday wear",
+      image: 'https://via.placeholder.com/300x200?text=T-Shirt',
+      description: 'Comfortable and stylish t-shirt for everyday wear',
     },
     {
-      _id: "p2",
-      name: "Designer Jeans",
+      _id: 'p2',
+      name: 'Designer Jeans',
       price: 2499,
-      image: "https://via.placeholder.com/300x200?text=Jeans",
-      description: "Premium quality denim jeans",
+      image: 'https://via.placeholder.com/300x200?text=Jeans',
+      description: 'Premium quality denim jeans',
     },
     {
-      _id: "p3",
-      name: "Casual Shoes",
+      _id: 'p3',
+      name: 'Casual Shoes',
       price: 1999,
-      image: "https://via.placeholder.com/300x200?text=Shoes",
-      description: "Comfortable casual shoes for daily use",
+      image: 'https://via.placeholder.com/300x200?text=Shoes',
+      description: 'Comfortable casual shoes for daily use',
     },
   ];
 
@@ -45,11 +45,11 @@ export default function ProductsByCategoryPage() {
       if (result.success) {
         toast.success(`🛒 Added ${quantity} of ${product.name} to cart`);
       } else {
-        toast.error(result.message || "Failed to add item to cart");
+        toast.error(result.message || 'Failed to add item to cart');
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.");
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -61,23 +61,38 @@ export default function ProductsByCategoryPage() {
       try {
         // First try the products API route
         const res = await fetch(
-          `http://localhost:5000/api/products/category/${category}`
+          `https://e-commerce-backend-d25l.onrender.com/api/products/category/${category}`
         );
         const data = await res.json();
-        setProducts(data.products || []);
+        const normalized = (data.products || []).map((p) => ({
+          ...p,
+          // If category is embedded, ensure it becomes a simple label for UI rendering
+          category:
+            typeof p.category === 'object'
+              ? p.category?.name || p.category?.slug || 'Category'
+              : p.category,
+        }));
+        setProducts(normalized);
         setLoading(false);
       } catch (err1) {
         try {
           // If that fails, try the categories API route
           const res = await fetch(
-            `http://localhost:5000/api/categories/${category}`
+            `https://e-commerce-backend-d25l.onrender.com/api/categories/${category}`
           );
           const data = await res.json();
-          setProducts(data.products || []);
+          const normalized = (data.products || []).map((p) => ({
+            ...p,
+            category:
+              typeof p.category === 'object'
+                ? p.category?.name || p.category?.slug || 'Category'
+                : p.category,
+          }));
+          setProducts(normalized);
           setLoading(false);
         } catch (err2) {
           // If both fail, use fallback data
-          console.error("Error fetching products:", err1, err2);
+          console.error('Error fetching products:', err1, err2);
           setProducts(fallbackProducts);
           setLoading(false);
         }

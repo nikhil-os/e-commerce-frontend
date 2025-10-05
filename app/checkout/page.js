@@ -1,10 +1,11 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Layout from "../components/Layout";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import { useRouter } from "next/navigation";
-import LocationPicker from "../components/LocationPicker";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { useRouter } from 'next/navigation';
+import LocationPicker from '../components/LocationPicker';
+import { apiFetch } from '../utils/apiClient';
 
 export default function CheckoutPage() {
   const { user, cartItems } = useAuth();
@@ -15,31 +16,32 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [location, setLocation] = useState(null);
   const [form, setForm] = useState({
-    fullName: "",
-    mobile: "",
-    street: "",
-    city: "",
-    state: "",
-    zip: "",
-    country: "",
+    fullName: '',
+    mobile: '',
+    street: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: '',
     isDefault: false,
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // Fetch addresses when component mounts
   useEffect(() => {
     if (!user) {
-      router.push("/users/login");
+      router.push('/users/login');
       return;
     }
 
     // Fetch user's saved addresses
-    fetch("http://localhost:5000/api/checkout/addresses", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchAddresses = async () => {
+      try {
+        const res = await apiFetch(
+          'https://e-commerce-backend-d25l.onrender.com/api/checkout/addresses'
+        );
+        const data = await res.json();
         setAddresses(data.addresses || []);
         if (data.addresses && data.addresses.length > 0) {
           // Set the default address as selected, or the first one
@@ -47,18 +49,20 @@ export default function CheckoutPage() {
             data.addresses.find((addr) => addr.isDefault) || data.addresses[0];
           setSelectedAddress(data.addresses.indexOf(defaultAddress));
         }
+      } catch (err) {
+        console.error('Error fetching checkout data:', err);
+        setError('Failed to load checkout data. Please try again.');
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching checkout data:", err);
-        setError("Failed to load checkout data. Please try again.");
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchAddresses();
   }, [user, router]);
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+    setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleFormSubmit = async (e) => {
@@ -71,7 +75,7 @@ export default function CheckoutPage() {
         location: location
           ? {
               address:
-                location.address?.formatted || location.fullAddress || "",
+                location.address?.formatted || location.fullAddress || '',
               coordinates: location.coordinates
                 ? {
                     latitude:
@@ -81,24 +85,23 @@ export default function CheckoutPage() {
                       location.coordinates.longitude,
                   }
                 : null,
-              city: location.address?.city || location.city || "",
-              state: location.address?.state || location.state || "",
-              country: location.address?.country || location.country || "",
+              city: location.address?.city || location.city || '',
+              state: location.address?.state || location.state || '',
+              country: location.address?.country || location.country || '',
               zipCode:
-                location.address?.zip || location.zipCode || location.zip || "",
+                location.address?.zip || location.zipCode || location.zip || '',
             }
           : null,
       };
 
-      const response = await fetch(
-        "http://localhost:5000/api/checkout/address",
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/checkout/address',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(addressData),
-          credentials: "include",
         }
       );
 
@@ -108,23 +111,23 @@ export default function CheckoutPage() {
         setAddresses([...addresses, data.address]);
         setSelectedAddress(addresses.length);
         setForm({
-          fullName: "",
-          mobile: "",
-          street: "",
-          city: "",
-          state: "",
-          zip: "",
-          country: "",
+          fullName: '',
+          mobile: '',
+          street: '',
+          city: '',
+          state: '',
+          zip: '',
+          country: '',
           isDefault: false,
         });
         setLocation(null);
-        toast.success("📍 Address saved successfully!");
+        toast.success('📍 Address saved successfully!');
       } else {
-        toast.error(data.message || "Failed to save address");
+        toast.error(data.message || 'Failed to save address');
       }
     } catch (error) {
-      console.error("Error saving address:", error);
-      toast.error("Failed to save address. Please try again.");
+      console.error('Error saving address:', error);
+      toast.error('Failed to save address. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -144,7 +147,7 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     if (selectedAddress === null) {
-      toast.warning("⚠️ Please select an address for delivery");
+      toast.warning('⚠️ Please select an address for delivery');
       return;
     }
 
@@ -157,51 +160,60 @@ export default function CheckoutPage() {
           0
         ) + 50;
 
-      const response = await fetch(
-        "http://localhost:5000/api/checkout/create-order",
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/checkout/create-order',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             addressId: addresses[selectedAddress]._id,
             total: orderTotal,
           }),
-          credentials: "include",
         }
       );
 
       let data;
       try {
         const responseText = await response.text();
-        console.log("Create order response:", responseText);
+        console.log('Create order response:', responseText);
 
         if (responseText && responseText.trim()) {
           data = JSON.parse(responseText);
-          console.log("Order data:", data);
+          console.log('Order data:', data);
         } else {
-          console.error("Empty response received");
-          throw new Error("Empty response from server");
+          console.error('Empty response received');
+          throw new Error('Empty response from server');
         }
 
         if (response.ok) {
-          if (data.order && data.order.id) {
-            window.location.href = `/payment?orderId=${data.order.id}`;
+          const createdOrderId =
+            data?.order?.id || data?.order?._id || data?.order?.orderId;
+
+          if (createdOrderId) {
+            if (typeof window !== 'undefined') {
+              try {
+                sessionStorage.setItem('activeOrderId', createdOrderId);
+              } catch (storageError) {
+                console.warn('Unable to persist activeOrderId', storageError);
+              }
+            }
+            window.location.href = `/payment?orderId=${createdOrderId}`;
           } else {
-            console.error("Invalid order data:", data);
-            toast.error("Invalid order data received from server");
+            console.error('Invalid order data:', data);
+            toast.error('Invalid order data received from server');
           }
         } else {
-          toast.error(data.message || "Failed to create order");
+          toast.error(data.message || 'Failed to create order');
         }
       } catch (parseError) {
-        console.error("Error parsing JSON response:", parseError);
-        toast.error("Unexpected response format. Check console for details.");
+        console.error('Error parsing JSON response:', parseError);
+        toast.error('Unexpected response format. Check console for details.');
       }
     } catch (error) {
-      console.error("Error creating order:", error);
-      toast.error("Failed to create order. Please try again.");
+      console.error('Error creating order:', error);
+      toast.error('Failed to create order. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -308,8 +320,8 @@ export default function CheckoutPage() {
                         <div
                           className={`relative p-6 rounded-2xl border-2 transition-all duration-300 ${
                             selectedAddress === i
-                              ? "border-[#ff6b9d] bg-gradient-to-r from-[#ff6b9d]/20 to-[#ffb3d9]/20 shadow-lg transform scale-[1.02]"
-                              : "border-white/20 bg-white/5 hover:border-[#ff6b9d]/50 hover:bg-white/10 group-hover:scale-[1.01]"
+                              ? 'border-[#ff6b9d] bg-gradient-to-r from-[#ff6b9d]/20 to-[#ffb3d9]/20 shadow-lg transform scale-[1.02]'
+                              : 'border-white/20 bg-white/5 hover:border-[#ff6b9d]/50 hover:bg-white/10 group-hover:scale-[1.01]'
                           }`}
                         >
                           {/* Selection Indicator */}
@@ -317,8 +329,8 @@ export default function CheckoutPage() {
                             <div
                               className={`w-6 h-6 rounded-full border-2 transition-all duration-300 ${
                                 selectedAddress === i
-                                  ? "border-[#ff6b9d] bg-[#ff6b9d]"
-                                  : "border-white/40"
+                                  ? 'border-[#ff6b9d] bg-[#ff6b9d]'
+                                  : 'border-white/40'
                               }`}
                             >
                               {selectedAddress === i && (
@@ -333,7 +345,7 @@ export default function CheckoutPage() {
                               {addr.fullName}
                             </h4>
                             <p className="mb-2 leading-relaxed text-gray-300">
-                              {addr.street}, {addr.city}, {addr.state}{" "}
+                              {addr.street}, {addr.city}, {addr.state}{' '}
                               {addr.zip}
                             </p>
                             <div className="flex items-center text-sm text-gray-400">
@@ -413,10 +425,10 @@ export default function CheckoutPage() {
                         <p className="text-sm text-gray-300">
                           <span className="text-[#ff6b9d] font-medium">
                             Auto-detected:
-                          </span>{" "}
+                          </span>{' '}
                           {location.address?.formatted ||
                             location.fullAddress ||
-                            "Location detected"}
+                            'Location detected'}
                         </p>
                       </div>
                     )}
@@ -563,7 +575,7 @@ export default function CheckoutPage() {
                         Saving Address...
                       </div>
                     ) : (
-                      "💾 Save Address"
+                      '💾 Save Address'
                     )}
                   </button>
                 </form>
@@ -593,7 +605,7 @@ export default function CheckoutPage() {
                         >
                           <img
                             src={
-                              item.product.image || "/placeholder-product.jpg"
+                              item.product.image || '/placeholder-product.jpg'
                             }
                             alt={item.product.name}
                             className="object-cover w-16 h-16 mr-4 rounded-lg"

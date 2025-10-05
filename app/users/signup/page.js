@@ -1,26 +1,27 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+import React, { useState } from 'react';
 import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-} from "firebase/auth";
-import { auth } from "../../firebase/config";
-import { useToast } from "../../contexts/ToastContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import LocationPicker from "../../components/LocationPicker";
-import Layout from "../../components/Layout";
-import Link from "next/link";
+} from 'firebase/auth';
+import { auth } from '../../firebase/config';
+import { useToast } from '../../contexts/ToastContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiFetch } from '../../utils/apiClient';
+import { useRouter } from 'next/navigation';
+import LocationPicker from '../../components/LocationPicker';
+import Layout from '../../components/Layout';
+import Link from 'next/link';
 
 export default function SignupPage() {
   const [form, setForm] = useState({
-    fullname: "",
-    email: "",
-    phone: "",
-    otp: "",
-    password: "",
-    confirmPassword: "",
+    fullname: '',
+    email: '',
+    phone: '',
+    otp: '',
+    password: '',
+    confirmPassword: '',
   });
   const [location, setLocation] = useState(null);
   const [otpSent, setOtpSent] = useState(false);
@@ -32,19 +33,19 @@ export default function SignupPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
   const toast = useToast();
-  const { login } = useAuth();
+  const { login, saveAuthToken } = useAuth();
   const router = useRouter();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const generateRecaptcha = () => {
-    if (typeof window !== "undefined" && !window.recaptchaVerifier) {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
-        "recaptcha-container",
+        'recaptcha-container',
         {
-          size: "invisible",
+          size: 'invisible',
           callback: (response) => {
             // reCAPTCHA solved, allow signInWithPhoneNumber.
           },
@@ -53,19 +54,57 @@ export default function SignupPage() {
     }
   };
 
+  // Normalize a user-entered phone number to E.164. Assumes default country +91 if none supplied.
+  const normalizePhone = (raw) => {
+    if (!raw) return '';
+    let p = raw.trim();
+    // Remove spaces, dashes, parentheses
+    p = p.replace(/[\s()\-]/g, '');
+    // If starts with 00 convert to +
+    if (p.startsWith('00')) p = '+' + p.slice(2);
+    // If already starts with + assume user added country code
+    if (p.startsWith('+')) return p;
+    // Drop leading 0 (common national format) then prepend +91 (adjust if needed)
+    if (p.startsWith('0')) p = p.slice(1);
+    // If user typed country "91" without plus
+    if (p.startsWith('91') && p.length === 12) return '+' + p;
+    // Default to +91 (can be extracted to env var later)
+    return '+91' + p;
+  };
+
+  const isValidE164 = (phone) => /^\+[1-9]\d{7,14}$/.test(phone);
+
   const handleSendOTP = async () => {
+    const formatted = normalizePhone(form.phone);
+    if (!isValidE164(formatted)) {
+      toast.error(
+        'Invalid phone format. Use +<country><number> (e.g. +919876543210)'
+      );
+      return;
+    }
+    // Persist normalized phone in form state (non-breaking for submit payload contact field)
+    if (formatted !== form.phone) setForm((f) => ({ ...f, phone: formatted }));
+
     setLoading(true);
     generateRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     try {
-      const result = await signInWithPhoneNumber(auth, form.phone, appVerifier);
+      const result = await signInWithPhoneNumber(auth, formatted, appVerifier);
       setConfirmationResult(result);
       setOtpSent(true);
-      toast.success("📱 OTP sent successfully to your phone!");
+      toast.success('📱 OTP sent successfully to your phone!');
     } catch (error) {
-      console.error("Error sending OTP:", error);
+      console.error('Error sending OTP:', error);
+      // If reCAPTCHA expired, reset so user can retry
+      if (window.recaptchaVerifier?.rendered) {
+        try {
+          await window.recaptchaVerifier.render();
+        } catch (_) {}
+      }
       toast.error(
-        "Failed to send OTP. Please check the phone number and try again."
+        error?.code === 'auth/invalid-phone-number'
+          ? 'Invalid phone number format. Please include country code.'
+          : 'Failed to send OTP. Please check the phone number and try again.'
       );
     } finally {
       setLoading(false);
@@ -74,17 +113,17 @@ export default function SignupPage() {
 
   const handleVerifyOTP = async () => {
     if (!confirmationResult) {
-      toast.warning("Please send an OTP first.");
+      toast.warning('Please send an OTP first.');
       return;
     }
     setLoading(true);
     try {
       await confirmationResult.confirm(form.otp);
       setVerified(true);
-      toast.success("✅ Phone number verified successfully!");
+      toast.success('✅ Phone number verified successfully!');
     } catch (error) {
-      console.error("OTP verification failed:", error);
-      toast.error("Invalid OTP. Please try again.");
+      console.error('OTP verification failed:', error);
+      toast.error('Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,61 +132,71 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!verified) {
-      toast.warning("⚠️ Please verify your phone number first.");
+      toast.warning('⚠️ Please verify your phone number first.');
       return;
     }
     if (form.password !== form.confirmPassword) {
-      toast.error("❌ Passwords do not match!");
+      toast.error('❌ Passwords do not match!');
       return;
     }
     if (form.password.length < 6) {
-      toast.warning("⚠️ Password must be at least 6 characters long.");
+      toast.warning('⚠️ Password must be at least 6 characters long.');
       return;
     }
     if (!acceptedTerms) {
-      toast.warning("⚠️ Please accept the Terms and Conditions to continue.");
+      toast.warning('⚠️ Please accept the Terms and Conditions to continue.');
       return;
     }
     if (!location) {
-      toast.warning("⚠️ Please provide your location for better service.");
+      toast.warning('⚠️ Please provide your location for better service.');
       return;
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullname: form.fullname,
-          email: form.email,
-          contact: form.phone,
-          location: {
-            address: location.address?.formatted || location.fullAddress || "",
-            coordinates: location.coordinates
-              ? {
-                  latitude:
-                    location.coordinates.lat || location.coordinates.latitude,
-                  longitude:
-                    location.coordinates.lng || location.coordinates.longitude,
-                }
-              : null,
-            city: location.address?.city || location.city || "",
-            state: location.address?.state || location.state || "",
-            country: location.address?.country || location.country || "",
-            zipCode:
-              location.address?.zip || location.zipCode || location.zip || "",
+      const res = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/signup',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          password: form.password,
-        }),
-      });
+          body: JSON.stringify({
+            fullname: form.fullname,
+            email: form.email,
+            contact: form.phone,
+            location: {
+              address:
+                location.address?.formatted || location.fullAddress || '',
+              coordinates: location.coordinates
+                ? {
+                    latitude:
+                      location.coordinates.lat || location.coordinates.latitude,
+                    longitude:
+                      location.coordinates.lng ||
+                      location.coordinates.longitude,
+                  }
+                : null,
+              city: location.address?.city || location.city || '',
+              state: location.address?.state || location.state || '',
+              country: location.address?.country || location.country || '',
+              zipCode:
+                location.address?.zip || location.zipCode || location.zip || '',
+            },
+            password: form.password,
+          }),
+          skipAuth: true,
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("🎉 Signup successful! Welcome to our community!");
+        toast.success('🎉 Signup successful! Welcome to our community!');
         console.log(data);
+
+        if (data?.token) {
+          saveAuthToken(data.token);
+        }
 
         // Automatically log in the user with their signup credentials
         try {
@@ -156,31 +205,35 @@ export default function SignupPage() {
             password: form.password,
           });
 
-          if (loginResult.success) {
-            toast.success("🚀 Redirecting to your dashboard...");
+          if (loginResult && loginResult.success) {
+            if (loginResult.profileLoaded === false) {
+              toast.success('✅ Account created. Finalizing profile...');
+            } else {
+              toast.success('🚀 Account created & logged in. Redirecting...');
+            }
             setTimeout(() => {
-              router.push("/"); // Redirect to home page instead of login
-            }, 1500);
+              router.push('/');
+            }, 800);
           } else {
             // If auto-login fails, redirect to login page
-            toast.warning("Please login with your new credentials");
+            toast.warning('Please login with your new credentials to continue');
             setTimeout(() => {
-              router.push("/users/login");
+              router.push('/users/login');
             }, 2000);
           }
         } catch (loginError) {
-          console.error("Auto-login error:", loginError);
-          toast.warning("Please login with your new credentials");
+          console.error('Auto-login error:', loginError);
+          toast.warning('Please login with your new credentials to continue');
           setTimeout(() => {
-            router.push("/users/login");
+            router.push('/users/login');
           }, 2000);
         }
       } else {
-        toast.error(data.message || "Signup failed");
+        toast.error(data.message || 'Signup failed');
       }
     } catch (error) {
-      console.error("Signup error:", error);
-      toast.error("Signup failed. Please try again.");
+      console.error('Signup error:', error);
+      toast.error('Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -225,20 +278,21 @@ export default function SignupPage() {
                 <input
                   name="phone"
                   type="tel"
-                  placeholder="Phone (+91...)"
+                  placeholder="Phone (e.g. +919876543210)"
                   className="flex-1 input"
                   value={form.phone}
                   onChange={handleChange}
                   required
-                  disabled={otpSent}
+                  // Allow editing for resend; if verified lock it.
+                  disabled={verified}
                 />
                 <button
                   type="button"
                   onClick={handleSendOTP}
                   className="px-4 btn btn-secondary"
-                  disabled={otpSent || loading}
+                  disabled={loading}
                 >
-                  {otpSent ? "Resend" : "Send OTP"}
+                  {otpSent ? 'Resend OTP' : 'Send OTP'}
                 </button>
                 {verified && (
                   <span className="flex items-center gap-1 text-sm font-medium text-green-400">
@@ -263,7 +317,7 @@ export default function SignupPage() {
                     className="px-4 btn btn-accent"
                     disabled={loading}
                   >
-                    {loading ? "Verifying..." : "Verify OTP"}
+                    {loading ? 'Verifying...' : 'Verify OTP'}
                   </button>
                 </div>
               ) : null}
@@ -279,10 +333,10 @@ export default function SignupPage() {
                 />
                 {location && (
                   <div className="text-xs text-[#C9BBF7] bg-white/5 rounded-lg p-2">
-                    📍{" "}
+                    📍{' '}
                     {location.fullAddress ||
                       location.formatted ||
-                      "Location detected"}
+                      'Location detected'}
                   </div>
                 )}
               </div>
@@ -290,7 +344,7 @@ export default function SignupPage() {
               <div className="relative">
                 <input
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   className="input w-full"
                   value={form.password}
@@ -302,7 +356,7 @@ export default function SignupPage() {
                   type="button"
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <svg
@@ -339,16 +393,16 @@ export default function SignupPage() {
               <div className="relative">
                 <input
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm Password"
                   className={`input w-full ${
                     form.confirmPassword &&
                     form.password !== form.confirmPassword
-                      ? "border-red-500 focus:border-red-500"
+                      ? 'border-red-500 focus:border-red-500'
                       : form.confirmPassword &&
                         form.password === form.confirmPassword
-                      ? "border-green-500 focus:border-green-500"
-                      : ""
+                      ? 'border-green-500 focus:border-green-500'
+                      : ''
                   }`}
                   value={form.confirmPassword}
                   onChange={handleChange}
@@ -361,8 +415,8 @@ export default function SignupPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={
                     showConfirmPassword
-                      ? "Hide confirm password"
-                      : "Show confirm password"
+                      ? 'Hide confirm password'
+                      : 'Show confirm password'
                   }
                 >
                   {showConfirmPassword ? (
@@ -443,14 +497,14 @@ export default function SignupPage() {
                   htmlFor="terms"
                   className="text-sm text-[#C9BBF7] leading-relaxed"
                 >
-                  I agree to the{" "}
+                  I agree to the{' '}
                   <button
                     type="button"
                     onClick={() => setShowTermsModal(true)}
                     className="text-[#8D7DFA] hover:text-white underline hover:no-underline transition-colors font-medium"
                   >
                     Terms and Conditions
-                  </button>{" "}
+                  </button>{' '}
                   and understand that by signing up, I accept all the terms
                   outlined for using SCRATCH services.
                 </label>
@@ -461,7 +515,7 @@ export default function SignupPage() {
                 className="w-full btn btn-primary"
                 disabled={!verified || !acceptedTerms || loading}
               >
-                {loading ? "Signing up..." : "Sign Up"}
+                {loading ? 'Signing up...' : 'Sign Up'}
               </button>
             </form>
             <p className="mt-4 text-center text-sm text-[#C9BBF7]">

@@ -1,22 +1,23 @@
-"use client";
-import React, { useState } from "react";
-import Layout from "../../components/Layout";
-import { auth } from "../../firebase/config";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useState } from 'react';
+import Layout from '../../components/Layout';
+import { auth } from '../../firebase/config';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { apiFetch } from '../../utils/apiClient';
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    email: "",
-    phone: "",
-    otp: "",
-    newPassword: "",
-    confirmPassword: "",
+    email: '',
+    phone: '',
+    otp: '',
+    newPassword: '',
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
@@ -27,12 +28,12 @@ export default function ForgotPasswordPage() {
 
   // Generate recaptcha
   const generateRecaptcha = () => {
-    if (typeof window !== "undefined" && !window.recaptchaVerifier) {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
-        "recaptcha-container",
+        'recaptcha-container',
         {
-          size: "invisible",
+          size: 'invisible',
         }
       );
     }
@@ -41,12 +42,12 @@ export default function ForgotPasswordPage() {
   // Send OTP
   const handleSendOTP = async () => {
     if (!form.email || !form.phone) {
-      setError("Please enter both email and phone number");
+      setError('Please enter both email and phone number');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       generateRecaptcha();
@@ -54,12 +55,12 @@ export default function ForgotPasswordPage() {
       const result = await signInWithPhoneNumber(auth, form.phone, appVerifier);
       setConfirmationResult(result);
       setStep(2);
-      setSuccess("OTP sent successfully!");
+      setSuccess('OTP sent successfully!');
     } catch (err) {
-      console.error("Error sending OTP:", err);
+      console.error('Error sending OTP:', err);
       setError(
         err.message ||
-          "Failed to send OTP. Please check your phone number and try again."
+          'Failed to send OTP. Please check your phone number and try again.'
       );
     } finally {
       setLoading(false);
@@ -69,20 +70,20 @@ export default function ForgotPasswordPage() {
   // Verify OTP
   const handleVerifyOTP = async () => {
     if (!form.otp) {
-      setError("Please enter OTP");
+      setError('Please enter OTP');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       await confirmationResult.confirm(form.otp);
       setStep(3);
-      setSuccess("OTP verified successfully!");
+      setSuccess('OTP verified successfully!');
     } catch (err) {
-      console.error("Error verifying OTP:", err);
-      setError(err.message || "Invalid OTP. Please try again.");
+      console.error('Error verifying OTP:', err);
+      setError(err.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,24 +94,24 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
 
     if (form.newPassword !== form.confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       // Get firebase token
       const user = auth.currentUser;
       const firebaseToken = await user.getIdToken();
 
-      const response = await fetch(
-        "http://localhost:5000/api/users/reset-password",
+      const response = await apiFetch(
+        'https://e-commerce-backend-d25l.onrender.com/api/users/reset-password',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             firebaseToken,
@@ -118,22 +119,23 @@ export default function ForgotPasswordPage() {
             confirmPassword: form.confirmPassword,
             email: form.email,
           }),
+          skipAuth: true,
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to reset password");
+        throw new Error(data.message || 'Failed to reset password');
       }
 
-      setSuccess("Password reset successful! Redirecting to login...");
+      setSuccess('Password reset successful! Redirecting to login...');
       setTimeout(() => {
-        router.push("/users/login");
+        router.push('/users/login');
       }, 2000);
     } catch (err) {
-      console.error("Error resetting password:", err);
-      setError(err.message || "Failed to reset password. Please try again.");
+      console.error('Error resetting password:', err);
+      setError(err.message || 'Failed to reset password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -185,7 +187,7 @@ export default function ForgotPasswordPage() {
                 className="w-full py-2 mt-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-blue-300"
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Send OTP"}
+                {loading ? 'Sending...' : 'Send OTP'}
               </button>
             </div>
           )}
@@ -207,7 +209,7 @@ export default function ForgotPasswordPage() {
                 className="w-full py-2 mt-2 text-white bg-purple-500 rounded hover:bg-purple-600 disabled:bg-purple-300"
                 disabled={loading}
               >
-                {loading ? "Verifying..." : "Verify OTP"}
+                {loading ? 'Verifying...' : 'Verify OTP'}
               </button>
             </div>
           )}
@@ -217,7 +219,7 @@ export default function ForgotPasswordPage() {
               <div className="relative mb-2">
                 <input
                   name="newPassword"
-                  type={showNewPassword ? "text" : "password"}
+                  type={showNewPassword ? 'text' : 'password'}
                   placeholder="New Password"
                   className="w-full px-4 py-2 text-black border rounded-md dark:bg-gray-700 dark:text-white"
                   value={form.newPassword}
@@ -229,7 +231,7 @@ export default function ForgotPasswordPage() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white focus:outline-none"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                   aria-label={
-                    showNewPassword ? "Hide new password" : "Show new password"
+                    showNewPassword ? 'Hide new password' : 'Show new password'
                   }
                 >
                   {showNewPassword ? (
@@ -267,7 +269,7 @@ export default function ForgotPasswordPage() {
               <div className="relative mb-2">
                 <input
                   name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm Password"
                   className="w-full px-4 py-2 text-black border rounded-md dark:bg-gray-700 dark:text-white"
                   value={form.confirmPassword}
@@ -280,8 +282,8 @@ export default function ForgotPasswordPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={
                     showConfirmPassword
-                      ? "Hide confirm password"
-                      : "Show confirm password"
+                      ? 'Hide confirm password'
+                      : 'Show confirm password'
                   }
                 >
                   {showConfirmPassword ? (
@@ -321,7 +323,7 @@ export default function ForgotPasswordPage() {
                 className="w-full py-2 mt-2 text-white bg-green-500 rounded hover:bg-green-600 disabled:bg-green-300"
                 disabled={loading}
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? 'Resetting...' : 'Reset Password'}
               </button>
             </form>
           )}

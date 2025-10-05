@@ -4,6 +4,7 @@ import Layout from "../../components/Layout";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "../../contexts/ToastContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const { login } = useAuth();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,29 +24,24 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-        credentials: "include", // Important for cookies
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+      const result = await login(form);
+      if (result?.success) {
+        if (result.profileLoaded === false) {
+          toast.success("✅ Logged in (loading profile in background)...");
+        } else {
+          toast.success("🎉 Login successful! Redirecting...");
+        }
+        router.push("/");
+      } else {
+        const msg = result?.message || "Login failed";
+        setError(msg);
+        toast.error(msg);
       }
-
-      console.log("Login successful:", data);
-      toast.success("🎉 Login successful! Welcome back!");
-      // Redirect to home page or dashboard
-      setTimeout(() => router.push("/"), 1000);
     } catch (err) {
       console.error("Login error:", err);
-      toast.error(err.message || "Failed to login. Please try again.");
-      setError(err.message || "Failed to login. Please try again.");
+      const msg = err.message || "Failed to login. Please try again.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -1,37 +1,38 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Layout from "../components/Layout";
-import { useToast } from "../contexts/ToastContext";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Layout from '../components/Layout';
+import { useToast } from '../contexts/ToastContext';
+import { apiFetch } from '../utils/apiClient';
 
 const paymentMethods = [
   {
-    id: "cod",
-    name: "Cash on Delivery",
-    icon: "💵",
-    description: "Pay when you receive your order",
-    type: "offline",
+    id: 'cod',
+    name: 'Cash on Delivery',
+    icon: '💵',
+    description: 'Pay when you receive your order',
+    type: 'offline',
   },
   {
-    id: "razorpay",
-    name: "Credit/Debit Card",
-    icon: "💳",
-    description: "Secure payment with Razorpay",
-    type: "online",
+    id: 'razorpay',
+    name: 'Credit/Debit Card',
+    icon: '💳',
+    description: 'Secure payment with Razorpay',
+    type: 'online',
   },
   {
-    id: "upi",
-    name: "UPI Payment",
-    icon: "📱",
-    description: "GPay, PhonePe, Paytm & more",
-    type: "online",
+    id: 'upi',
+    name: 'UPI Payment',
+    icon: '📱',
+    description: 'GPay, PhonePe, Paytm & more',
+    type: 'online',
   },
   {
-    id: "netbanking",
-    name: "Net Banking",
-    icon: "🏦",
-    description: "All major banks supported",
-    type: "online",
+    id: 'netbanking',
+    name: 'Net Banking',
+    icon: '🏦',
+    description: 'All major banks supported',
+    type: 'online',
   },
 ];
 
@@ -39,17 +40,17 @@ export default function PaymentPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const toast = useToast();
-  const [selected, setSelected] = useState("");
-  const [orderId, setOrderId] = useState("");
+  const [selected, setSelected] = useState('');
+  const [orderId, setOrderId] = useState('');
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [processingPayment, setProcessingPayment] = useState(false);
 
   // Load Razorpay script
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     document.body.appendChild(script);
     return () => {
@@ -58,39 +59,66 @@ export default function PaymentPage() {
   }, []);
 
   useEffect(() => {
-    const orderIdParam = searchParams.get("orderId");
-    if (!orderIdParam) {
-      setError("Order ID is missing. Please go back to checkout.");
+    const resolveOrderId = () => {
+      const paramId = searchParams.get('orderId');
+      if (paramId) return paramId;
+      if (typeof window !== 'undefined') {
+        try {
+          return sessionStorage.getItem('activeOrderId') || '';
+        } catch (storageError) {
+          console.warn('Unable to read activeOrderId', storageError);
+          return '';
+        }
+      }
+      return '';
+    };
+
+    const resolvedId = resolveOrderId();
+    if (!resolvedId) {
+      setError('Order ID is missing. Please go back to checkout.');
       setLoading(false);
       return;
     }
 
-    setOrderId(orderIdParam);
+    setOrderId(resolvedId);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('activeOrderId', resolvedId);
+      } catch (storageError) {
+        console.warn('Unable to persist activeOrderId', storageError);
+      }
+    }
 
     // Fetch order details from the backend
-    fetch(`http://localhost:5000/api/checkout/order/${orderIdParam}`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch order details");
-        return res.json();
-      })
-      .then((data) => {
-        setOrderDetails(data.order);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching order:", err);
+    const fetchOrder = async () => {
+      try {
+        const res = await apiFetch(
+          `https://e-commerce-backend-d25l.onrender.com/api/checkout/order/${resolvedId}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch order details');
+        const data = await res.json();
+        setOrderDetails(data.order || data.data?.order || null);
+      } catch (err) {
+        console.error('Error fetching order:', err);
         // Don't treat this as a fatal error - proceed with just the order ID
-        setOrderDetails({ id: orderIdParam, amount: 0 });
+        setOrderDetails({ id: resolvedId, amount: 0 });
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchOrder();
   }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selected) {
-      toast.warning("⚠️ Please select a payment method");
+      toast.warning('⚠️ Please select a payment method');
+      return;
+    }
+
+    if (!orderId) {
+      toast.error('Missing order details. Please restart checkout.');
       return;
     }
 
@@ -98,12 +126,11 @@ export default function PaymentPage() {
 
     try {
       // If COD, simply confirm the order
-      if (selected === "cod") {
-        const response = await fetch(
-          `http://localhost:5000/api/payment/cod/${orderId}`,
+      if (selected === 'cod') {
+        const response = await apiFetch(
+          `https://e-commerce-backend-d25l.onrender.com/api/payment/cod/${orderId}`,
           {
-            method: "POST",
-            credentials: "include",
+            method: 'POST',
           }
         );
 
@@ -113,66 +140,65 @@ export default function PaymentPage() {
           if (responseText.trim()) {
             data = JSON.parse(responseText);
           } else {
-            data = { success: response.ok, message: "Payment processed" };
+            data = { success: response.ok, message: 'Payment processed' };
           }
         } catch (parseError) {
-          console.error("Error parsing response:", parseError);
-          data = { success: response.ok, message: "Payment processed" };
+          console.error('Error parsing response:', parseError);
+          data = { success: response.ok, message: 'Payment processed' };
         }
 
         if (response.ok || data.success) {
-          router.push("/payment-success?orderId=" + orderId + "&method=cod");
+          router.push('/payment-success?orderId=' + orderId + '&method=cod');
         } else {
-          toast.error(data.message || "💳 Payment failed");
+          toast.error(data.message || '💳 Payment failed');
         }
       } else {
         // For online payments, create Razorpay order
         console.log(
-          "Making payment request for method:",
+          'Making payment request for method:',
           selected,
-          "orderId:",
+          'orderId:',
           orderId
         ); // Debug log
-        const response = await fetch(
-          `http://localhost:5000/api/payment/create/${orderId}`,
+        const response = await apiFetch(
+          `https://e-commerce-backend-d25l.onrender.com/api/payment/create/${orderId}`,
           {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({ method: selected }),
-            credentials: "include",
           }
         );
 
         console.log(
-          "Response status:",
+          'Response status:',
           response.status,
-          "Response OK:",
+          'Response OK:',
           response.ok
         ); // Debug log
 
         let data;
         try {
           const responseText = await response.text();
-          console.log("Backend response:", responseText); // Debug log
+          console.log('Backend response:', responseText); // Debug log
           if (responseText.trim()) {
             data = JSON.parse(responseText);
-            console.log("Parsed data:", data); // Debug log
+            console.log('Parsed data:', data); // Debug log
           } else {
-            throw new Error("Empty response from server");
+            throw new Error('Empty response from server');
           }
         } catch (parseError) {
-          console.error("Error parsing response:", parseError);
-          throw new Error("Invalid response from server");
+          console.error('Error parsing response:', parseError);
+          throw new Error('Invalid response from server');
         }
 
         console.log(
-          "Response OK:",
+          'Response OK:',
           response.ok,
-          "Data success:",
+          'Data success:',
           data.success,
-          "Has razorpayOrder:",
+          'Has razorpayOrder:',
           !!data.razorpayOrder
         ); // Debug log
 
@@ -182,7 +208,7 @@ export default function PaymentPage() {
             key: data.key, // Razorpay key from backend
             amount: data.razorpayOrder.amount,
             currency: data.razorpayOrder.currency,
-            name: "SCRATCH",
+            name: 'SCRATCH',
             description: `Order #${orderId}`,
             order_id: data.razorpayOrder.id,
             handler: function (response) {
@@ -190,12 +216,12 @@ export default function PaymentPage() {
               verifyPayment(response);
             },
             prefill: {
-              name: orderDetails?.user?.name || "",
-              email: orderDetails?.user?.email || "",
-              contact: orderDetails?.user?.phone || "",
+              name: orderDetails?.user?.name || '',
+              email: orderDetails?.user?.email || '',
+              contact: orderDetails?.user?.phone || '',
             },
             theme: {
-              color: "#8f6690",
+              color: '#8f6690',
             },
             modal: {
               ondismiss: function () {
@@ -208,17 +234,17 @@ export default function PaymentPage() {
           razorpay.open();
         } else {
           // Show specific error message from backend
-          const errorMessage = data.message || "Payment initiation failed";
-          console.error("Payment initiation failed:", errorMessage, data);
+          const errorMessage = data.message || 'Payment initiation failed';
+          console.error('Payment initiation failed:', errorMessage, data);
 
           // If cart is empty, suggest going back to add items
-          if (errorMessage.includes("Cart is empty")) {
+          if (errorMessage.includes('Cart is empty')) {
             if (
               confirm(
-                "Your cart appears to be empty. Would you like to go back to shopping?"
+                'Your cart appears to be empty. Would you like to go back to shopping?'
               )
             ) {
-              router.push("/");
+              router.push('/');
               return;
             }
           }
@@ -227,27 +253,33 @@ export default function PaymentPage() {
         }
       }
     } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("💳 Payment failed. Please try again.");
+      console.error('Payment error:', error);
+      toast.error('💳 Payment failed. Please try again.');
       setProcessingPayment(false);
     }
   };
 
   const verifyPayment = async (razorpayResponse) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/payment/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId: orderId,
-          razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-          razorpay_order_id: razorpayResponse.razorpay_order_id,
-          razorpay_signature: razorpayResponse.razorpay_signature,
-        }),
-        credentials: "include",
-      });
+      if (!orderId) {
+        throw new Error('Missing order ID for verification');
+      }
+
+      const response = await apiFetch(
+        `https://e-commerce-backend-d25l.onrender.com/api/payment/verify`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId,
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -256,11 +288,11 @@ export default function PaymentPage() {
           `/payment-success?orderId=${orderId}&method=${selected}&paymentId=${razorpayResponse.razorpay_payment_id}`
         );
       } else {
-        toast.error("Payment verification failed. Please contact support.");
+        toast.error('Payment verification failed. Please contact support.');
       }
     } catch (error) {
-      console.error("Payment verification error:", error);
-      toast.error("Payment verification failed. Please contact support.");
+      console.error('Payment verification error:', error);
+      toast.error('Payment verification failed. Please contact support.');
     } finally {
       setProcessingPayment(false);
     }
@@ -357,8 +389,8 @@ export default function PaymentPage() {
                         key={method.id}
                         className={`relative cursor-pointer transition-all duration-300 ${
                           selected === method.id
-                            ? "transform scale-[1.02]"
-                            : "hover:transform hover:scale-[1.01]"
+                            ? 'transform scale-[1.02]'
+                            : 'hover:transform hover:scale-[1.01]'
                         }`}
                       >
                         <input
@@ -373,8 +405,8 @@ export default function PaymentPage() {
                         <div
                           className={`border-2 rounded-xl p-6 transition-all duration-300 ${
                             selected === method.id
-                              ? "border-[#8f6690] bg-gradient-to-r from-[#8f6690]/10 to-[#b278a8]/10 shadow-lg"
-                              : "border-gray-200 hover:border-[#8f6690]/50 hover:bg-gray-50"
+                              ? 'border-[#8f6690] bg-gradient-to-r from-[#8f6690]/10 to-[#b278a8]/10 shadow-lg'
+                              : 'border-gray-200 hover:border-[#8f6690]/50 hover:bg-gray-50'
                           }`}
                         >
                           <div className="flex items-center space-x-4">
@@ -390,8 +422,8 @@ export default function PaymentPage() {
                             <div
                               className={`w-6 h-6 rounded-full border-2 transition-all duration-300 ${
                                 selected === method.id
-                                  ? "border-[#8f6690] bg-[#8f6690]"
-                                  : "border-gray-300"
+                                  ? 'border-[#8f6690] bg-[#8f6690]'
+                                  : 'border-gray-300'
                               }`}
                             >
                               {selected === method.id && (
@@ -410,8 +442,8 @@ export default function PaymentPage() {
                       disabled={!selected || processingPayment}
                       className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 transform ${
                         !selected || processingPayment
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-gradient-to-r from-[#8f6690] to-[#b278a8] text-white hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]"
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-[#8f6690] to-[#b278a8] text-white hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]'
                       }`}
                     >
                       {processingPayment ? (
@@ -423,9 +455,9 @@ export default function PaymentPage() {
                         <div className="flex items-center justify-center space-x-2">
                           <span>🔒</span>
                           <span>
-                            {selected === "cod"
-                              ? "Confirm Order"
-                              : "Pay Securely"}
+                            {selected === 'cod'
+                              ? 'Confirm Order'
+                              : 'Pay Securely'}
                           </span>
                         </div>
                       )}

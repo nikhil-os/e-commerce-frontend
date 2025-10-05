@@ -1,0 +1,265 @@
+E-COMMERCE FRONTEND – COMPLETE GIT WORKFLOW & MIGRATION GUIDE
+================================================================
+
+Goal: This document lets you (or any new contributor) set up this project on a NEW machine from zero and confidently push code to the same GitHub repositories used so far.
+
+Current Important Repositories (at time of writing):
+  1. Fork (your working remote origin):
+     https://github.com/Saniya95/e-commerce-frontend.git
+  2. Upstream (original / target for PRs):
+     https://github.com/nikhil-os/e-commerce-frontend.git
+
+Primary Active Branches Noted in History:
+  - master (default branch on upstream originally)
+  - main (created in your fork earlier)
+  - integrate-main (integration branch created from upstream/master + your main, cleaned & enhanced; current working branch)
+
+Recent Structural Actions Already Done:
+  - Removed nested duplicate directories (flattened structure).
+  - Added CI workflow (.github/workflows/ci.yml).
+  - Added .editorconfig.
+  - Replaced localhost:5000 backend URLs with production: https://e-commerce-backend-d25l.onrender.com
+  - Hardened Auth flow: optimistic login, token capture, profile retry, token persistence in localStorage.
+  - Normalized product rendering to avoid React object child errors.
+
+----------------------------------------------------------------
+SECTION 1: STARTING FRESH ON A NEW SYSTEM
+----------------------------------------------------------------
+Option A – Clone your fork directly (preferred):
+  git clone https://github.com/Saniya95/e-commerce-frontend.git
+  cd e-commerce-frontend
+
+Option B – Clone upstream then add your fork as push remote:
+  git clone https://github.com/nikhil-os/e-commerce-frontend.git
+  cd e-commerce-frontend
+  git remote rename origin upstream
+  git remote add origin https://github.com/Saniya95/e-commerce-frontend.git
+
+Option C – You copied the project folder WITHOUT the .git directory:
+  1. Place the folder somewhere (e.g., C:\dev\e-commerce-frontend)
+  2. cd into it.
+  3. Initialize Git:   git init
+  4. Add all files:     git add .
+  5. Commit:            git commit -m "chore: initial import on new machine"
+  6. Add remotes:
+       git remote add origin https://github.com/Saniya95/e-commerce-frontend.git
+       git remote add upstream https://github.com/nikhil-os/e-commerce-frontend.git
+  7. Fetch upstream data (for later PRs):
+       git fetch upstream --prune
+  8. Create integration branch if needed:
+       git checkout -b integrate-main upstream/master
+       (If upstream/master not present yet, fetch again or pull).
+
+Verify remotes anytime:
+  git remote -v
+
+----------------------------------------------------------------
+SECTION 2: BRANCH & HISTORY STRATEGY
+----------------------------------------------------------------
+Why integrate-main exists:
+  - Histories between your fork (main) and upstream master were unrelated.
+  - We created integrate-main from upstream/master, merged your main with --allow-unrelated-histories, cleaned duplicates, and continued development there.
+
+Common Tasks:
+  Update integrate-main with upstream latest:
+    git checkout integrate-main
+    git fetch upstream
+    git merge upstream/master
+
+  (If unrelated history error reappears – it should not now – use:
+    git merge upstream/master --allow-unrelated-histories )
+
+  Push integrate-main to your fork:
+    git push origin integrate-main
+
+  Open PR to upstream:
+    Base: upstream master (nikhil-os:master)
+    Compare: your fork integrate-main (Saniya95:integrate-main)
+
+----------------------------------------------------------------
+SECTION 3: MAKING CHANGES & PUSHING
+----------------------------------------------------------------
+1. Confirm branch:
+     git branch --show-current
+2. Pull latest safe changes first:
+     git fetch origin
+     git fetch upstream
+3. (Optional) Merge upstream/master:
+     git merge upstream/master
+4. Stage work:
+     git add path/to/fileA path/to/fileB
+     (or git add . for all)
+5. Commit with a conventional message:
+     git commit -m "feat(cart): add quantity selector"
+6. Push:
+     git push origin integrate-main
+7. Create or update PR in GitHub UI.
+
+If push is rejected (403):
+  - You lack permission on that remote.
+  - Ensure you are pushing to your fork (origin) not upstream.
+  - If you MUST push upstream directly, have repo owner add you as collaborator.
+
+----------------------------------------------------------------
+SECTION 4: HANDLING UNRELATED HISTORIES
+----------------------------------------------------------------
+Symptom: fatal: refusing to merge unrelated histories
+Resolution when merging fork branch into upstream/master-based branch:
+  git merge <other-branch> --allow-unrelated-histories
+Then manually resolve conflicts, stage, commit, continue.
+
+----------------------------------------------------------------
+SECTION 5: AUTH / CREDENTIAL TROUBLESHOOTING (WINDOWS)
+----------------------------------------------------------------
+View stored credentials:
+  cmdkey /list | findstr github
+
+Delete stale ones causing 403:
+  cmdkey /delete:LegacyGeneric:target=git:https://github.com
+  cmdkey /delete:LegacyGeneric:target=git:https://<username>@github.com
+
+If using embedded URL with old PAT – remove token from remote URL:
+  git remote set-url origin https://github.com/Saniya95/e-commerce-frontend.git
+
+If still prompted every time, install / enable Git Credential Manager (bundled with newer Git for Windows) or login via browser prompt when pushing.
+
+----------------------------------------------------------------
+SECTION 6: COMMON ERRORS & FIXES
+----------------------------------------------------------------
+1. 403 Permission denied to <user>:
+   - Wrong remote (pushing to upstream instead of fork) or no collaborator rights.
+   - Fix: push to origin or request access.
+
+2. No token provided (frontend toast):
+   - Backend expects token header; we now capture token from login and send Authorization: Bearer <token>. If still failing, backend cookie/SameSite/CORS issue.
+
+3. Cannot read properties of undefined (reading 'success') after signup:
+   - login() previously didn’t always return an object; fixed by always returning { success, message? }.
+
+4. Objects are not valid as a React child:
+   - Category came as an object; normalized before rendering in ProductCard.
+
+5. After login nav still shows Login/Signup:
+   - Header now uses context fallback + optimistic provisional user, and profile retry logic.
+
+6. Login succeeded but failed to load profile:
+   - Now treated as non-fatal; background retries attempt to load profile (up to 2 tries).
+
+7. User logged out on refresh:
+   - Resolved by persisting token in localStorage and refetching profile on mount.
+
+----------------------------------------------------------------
+SECTION 7: ADDING A NEW FEATURE (EXAMPLE WORKFLOW)
+----------------------------------------------------------------
+git checkout integrate-main
+git pull --ff-only origin integrate-main
+git fetch upstream && git merge upstream/master
+# make code changes
+git add .
+git commit -m "feat(search): add product search bar"
+git push origin integrate-main
+Open PR → review → merge (squash or rebase) into upstream/master via GitHub.
+
+----------------------------------------------------------------
+SECTION 8: CLEANING LOCAL ENVIRONMENT
+----------------------------------------------------------------
+See all branches:
+  git branch -a
+Delete merged local branch:
+  git branch -d old-feature-branch
+Delete remote branch on fork:
+  git push origin --delete old-feature-branch
+Prune remote-tracking branches:
+  git fetch --prune
+
+----------------------------------------------------------------
+SECTION 9: BACKEND INTERACTION REMINDER
+----------------------------------------------------------------
+Current production backend base URL used in frontend code:
+  https://e-commerce-backend-d25l.onrender.com
+If backend changes, update in a central config (future improvement: move to env var NEXT_PUBLIC_API_BASE).
+
+Auth Expectations:
+  - Backend SHOULD set an auth cookie OR return a token (token now captured if present: token | accessToken | jwt).
+  - Frontend sends cookies (credentials: 'include') and Authorization header if token retained.
+  - If cart endpoints still reject: inspect network tab for missing cookie or CORS misconfiguration (then fix backend).
+
+----------------------------------------------------------------
+SECTION 10: RE-CREATING INTEGRATION BRANCH FROM SCRATCH (IF NEEDED)
+----------------------------------------------------------------
+If integrate-main is lost but you still have fork main and upstream master:
+  git fetch origin
+  git fetch upstream
+  git checkout -b integrate-main upstream/master
+  git merge origin/main --allow-unrelated-histories
+  # Resolve conflicts, remove duplicates
+  git add . && git commit -m "chore: recreate integrate-main"
+  git push -u origin integrate-main
+
+----------------------------------------------------------------
+SECTION 11: SAFETY & GOOD PRACTICES
+----------------------------------------------------------------
+Commit messages: use conventional style (feat, fix, chore, refactor, docs, test).
+Never commit secret tokens / .env files (already .gitignored).* 
+Run lint & typecheck before pushing:
+  npm run lint
+  npm run typecheck
+  npm run build (ensures Next.js can compile)
+
+Pull before push to reduce conflicts:
+  git pull --ff-only origin integrate-main
+If fast-forward fails, rebase or merge explicitly (avoid surprise merge commits).
+
+Use draft PR early for large features to surface CI results.
+
+----------------------------------------------------------------
+SECTION 12: QUICK COMMAND REFERENCE
+----------------------------------------------------------------
+Show remotes:              git remote -v
+Current branch:            git branch --show-current
+Short status:              git status -sb
+Fetch all remotes:         git fetch --all --prune
+Merge upstream updates:    git merge upstream/master
+Stage changes:             git add .
+Commit:                    git commit -m "feat: message"
+Push:                      git push origin integrate-main
+View diff since upstream:  git diff upstream/master...HEAD --stat
+
+----------------------------------------------------------------
+SECTION 13: WHEN TO OPEN A PR vs FORCE PUSH
+----------------------------------------------------------------
+Open a PR:
+  - Integrating big unrelated histories
+  - Structural / dependency updates
+  - Feature additions or bug fixes for review
+
+Force push (rare, caution):
+  - Only to your own fork branch when cleaning local history before PR
+  - NEVER force push upstream/master unless you are the sole maintainer and fully understand impact
+
+----------------------------------------------------------------
+SECTION 14: FUTURE IMPROVEMENTS (BACKLOG IDEAS)
+----------------------------------------------------------------
+[ ] Centralize API base URL via NEXT_PUBLIC_API_BASE
+[ ] Replace manual fetches with a small apiClient (handles headers, errors)
+[ ] Add automated auth integration tests
+[ ] Remove legacy AuthContextNew.js to avoid confusion
+[ ] Add Prettier + pre-commit hook (lint-staged)
+[ ] Add Dependabot for dependency updates
+
+----------------------------------------------------------------
+APPENDIX A: TROUBLESHOOTING MATRIX
+----------------------------------------------------------------
+| Symptom                                   | Likely Cause                         | Primary Fix |
+|-------------------------------------------|--------------------------------------|-------------|
+| 403 push denied                           | Wrong remote / no permission         | Push fork (origin) or get rights |
+| Merge unrelated histories                 | Different root commits               | --allow-unrelated-histories |
+| No token provided (cart)                  | Missing cookie or bearer token       | Token capture + backend CORS |
+| Navbar still shows Login after login      | User not set / profile delay         | Optimistic user + retry |
+| Logged out on refresh                     | Volatile state, no persistence       | Token localStorage + profile fetch |
+| React object rendering error              | Passing object to JSX text node      | Normalize (e.g., category.name) |
+| Invalid phone number (OTP)                | Non-E.164 input                      | Normalize + country code default |
+
+----------------------------------------------------------------
+END OF DOCUMENT
+----------------------------------------------------------------

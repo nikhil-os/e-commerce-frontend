@@ -1,6 +1,7 @@
-"use client";
-import React, { useState } from "react";
-import { useToast } from "../contexts/ToastContext";
+'use client';
+import React, { useState } from 'react';
+import { useToast } from '../contexts/ToastContext';
+import { apiFetch } from '../utils/apiClient';
 
 const ImageUploadModal = ({
   isOpen,
@@ -10,8 +11,8 @@ const ImageUploadModal = ({
   currentImage,
   onImageUpdate,
 }) => {
-  const [activeTab, setActiveTab] = useState("upload");
-  const [imageUrl, setImageUrl] = useState("");
+  const [activeTab, setActiveTab] = useState('upload');
+  const [imageUrl, setImageUrl] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentImage);
@@ -19,8 +20,8 @@ const ImageUploadModal = ({
 
   const compressImage = (file, maxWidth = 400, quality = 0.8) => {
     return new Promise((resolve) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       const img = new Image();
 
       img.onload = () => {
@@ -43,7 +44,7 @@ const ImageUploadModal = ({
 
         // Draw and compress
         ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(resolve, "image/jpeg", quality);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
       };
 
       img.src = URL.createObjectURL(file);
@@ -54,14 +55,14 @@ const ImageUploadModal = ({
     const file = e.target.files[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file");
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file');
         return;
       }
 
       // Validate file size (10MB limit before compression)
       if (file.size > 10 * 1024 * 1024) {
-        toast.error("Image size should be less than 10MB");
+        toast.error('Image size should be less than 10MB');
         return;
       }
 
@@ -75,9 +76,9 @@ const ImageUploadModal = ({
         reader.onload = (e) => setPreviewUrl(e.target.result);
         reader.readAsDataURL(compressedFile);
 
-        toast.info("📏 Image optimized for upload");
+        toast.info('📏 Image optimized for upload');
       } catch (error) {
-        console.error("Image compression error:", error);
+        console.error('Image compression error:', error);
         // Fallback to original file if compression fails
         setUploadedFile(file);
         const reader = new FileReader();
@@ -118,27 +119,27 @@ const ImageUploadModal = ({
     }
 
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ecommerce_categories"); // You'll need to create this preset in Cloudinary
-    formData.append("folder", "ecommerce/categories");
+    formData.append('file', file);
+    formData.append('upload_preset', 'ecommerce_categories'); // You'll need to create this preset in Cloudinary
+    formData.append('folder', 'ecommerce/categories');
 
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         {
-          method: "POST",
+          method: 'POST',
           body: formData,
         }
       );
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        throw new Error('Upload failed');
       }
 
       const data = await response.json();
       return data.secure_url;
     } catch (error) {
-      console.error("Cloudinary upload error:", error);
+      console.error('Cloudinary upload error:', error);
       // Fallback to base64 if Cloudinary fails
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -151,33 +152,32 @@ const ImageUploadModal = ({
   const handleSave = async () => {
     setUploading(true);
     try {
-      let finalImageUrl = "";
+      let finalImageUrl = '';
 
-      if (activeTab === "upload" && uploadedFile) {
+      if (activeTab === 'upload' && uploadedFile) {
         // Upload to Cloudinary
         finalImageUrl = await uploadToCloudinary(uploadedFile);
-      } else if (activeTab === "url" && imageUrl) {
+      } else if (activeTab === 'url' && imageUrl) {
         if (!isValidUrl(imageUrl)) {
-          toast.error("Please enter a valid image URL");
+          toast.error('Please enter a valid image URL');
           setUploading(false);
           return;
         }
         finalImageUrl = imageUrl;
       } else {
-        toast.error("Please select an image or enter a URL");
+        toast.error('Please select an image or enter a URL');
         setUploading(false);
         return;
       }
 
       // Update category image via API
-      const response = await fetch(
-        `http://localhost:5000/api/admin/categories/${categorySlug}/image`,
+      const response = await apiFetch(
+        `https://e-commerce-backend-d25l.onrender.com/api/admin/categories/${categorySlug}/image`,
         {
-          method: "PUT",
+          method: 'PUT',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
           body: JSON.stringify({ imageUrl: finalImageUrl }),
         }
       );
@@ -185,11 +185,11 @@ const ImageUploadModal = ({
       if (!response.ok) {
         if (response.status === 413) {
           throw new Error(
-            "Image file is too large. Please try a smaller image or use an image URL instead."
+            'Image file is too large. Please try a smaller image or use an image URL instead.'
           );
         } else if (response.status === 401) {
           throw new Error(
-            "You must be logged in as an admin to update images."
+            'You must be logged in as an admin to update images.'
           );
         } else if (response.status === 403) {
           throw new Error(
@@ -210,26 +210,26 @@ const ImageUploadModal = ({
       // Close modal
       onClose();
     } catch (error) {
-      console.error("Error updating image:", error);
+      console.error('Error updating image:', error);
 
       // Provide specific error messages based on error content
-      if (error.message.includes("too large")) {
-        toast.error("📏 " + error.message);
+      if (error.message.includes('too large')) {
+        toast.error('📏 ' + error.message);
       } else if (
-        error.message.includes("permission") ||
-        error.message.includes("admin")
+        error.message.includes('permission') ||
+        error.message.includes('admin')
       ) {
-        toast.error("🔒 " + error.message);
+        toast.error('🔒 ' + error.message);
       } else if (
-        error.message.includes("network") ||
-        error.name === "NetworkError"
+        error.message.includes('network') ||
+        error.name === 'NetworkError'
       ) {
         toast.error(
-          "🌐 Network error. Please check your connection and try again."
+          '🌐 Network error. Please check your connection and try again.'
         );
       } else {
         toast.error(
-          "❌ " + (error.message || "Failed to update image. Please try again.")
+          '❌ ' + (error.message || 'Failed to update image. Please try again.')
         );
       }
     } finally {
@@ -238,8 +238,8 @@ const ImageUploadModal = ({
   };
 
   const resetModal = () => {
-    setActiveTab("upload");
-    setImageUrl("");
+    setActiveTab('upload');
+    setImageUrl('');
     setUploadedFile(null);
     setPreviewUrl(currentImage);
   };
@@ -300,21 +300,21 @@ const ImageUploadModal = ({
           {/* Tabs */}
           <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
             <button
-              onClick={() => setActiveTab("upload")}
+              onClick={() => setActiveTab('upload')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "upload"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                activeTab === 'upload'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               📁 Upload File
             </button>
             <button
-              onClick={() => setActiveTab("url")}
+              onClick={() => setActiveTab('url')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "url"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                activeTab === 'url'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               🔗 Image URL
@@ -322,7 +322,7 @@ const ImageUploadModal = ({
           </div>
 
           {/* Upload Tab */}
-          {activeTab === "upload" && (
+          {activeTab === 'upload' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Image File
@@ -354,7 +354,7 @@ const ImageUploadModal = ({
                   <p className="text-sm text-gray-600">
                     {uploadedFile
                       ? uploadedFile.name
-                      : "Click to upload or drag and drop"}
+                      : 'Click to upload or drag and drop'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     PNG, JPG, JPEG up to 5MB
@@ -365,7 +365,7 @@ const ImageUploadModal = ({
           )}
 
           {/* URL Tab */}
-          {activeTab === "url" && (
+          {activeTab === 'url' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Image URL
@@ -407,7 +407,7 @@ const ImageUploadModal = ({
                 Updating...
               </>
             ) : (
-              "Save Image"
+              'Save Image'
             )}
           </button>
         </div>
