@@ -1,4 +1,8 @@
-const DEFAULT_BASE_URL = 'https://e-commerce-backend-d25l.onrender.com';
+const DEFAULT_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ||
+  'https://e-commerce-backend-d25l.onrender.com';
+
+export const API_BASE_URL = DEFAULT_BASE_URL;
 
 const isAbsoluteUrl = (url) => /^https?:\/\//i.test(url);
 
@@ -7,6 +11,8 @@ const ensureBaseUrl = (url) => {
   if (isAbsoluteUrl(url)) return url;
   return `${DEFAULT_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
+
+export const buildApiUrl = (path = '') => ensureBaseUrl(path);
 
 export const getStoredToken = () => {
   if (typeof window === 'undefined') return null;

@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'next/navigation';
 import {
   apiFetch,
+  buildApiUrl,
   clearStoredToken,
   getStoredToken,
   setStoredToken,
@@ -42,12 +43,9 @@ export function AuthProvider({ children }) {
   const fetchCartData = useCallback(
     async (tokenOverride) => {
       try {
-        const res = await apiFetch(
-          'https://e-commerce-backend-d25l.onrender.com/api/cart',
-          {
-            token: tokenOverride ?? authToken ?? getStoredToken(),
-          }
-        );
+        const res = await apiFetch(buildApiUrl('api/cart'), {
+          token: tokenOverride ?? authToken ?? getStoredToken(),
+        });
 
         if (res.ok) {
           const data = await res.json();
@@ -88,12 +86,9 @@ export function AuthProvider({ children }) {
     // Debounce the fetch to prevent multiple rapid calls
     const timeoutId = setTimeout(async () => {
       try {
-        const res = await apiFetch(
-          'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
-          {
-            token: authToken ?? getStoredToken(),
-          }
-        );
+        const res = await apiFetch(buildApiUrl('api/users/profile'), {
+          token: authToken ?? getStoredToken(),
+        });
         if (!res.ok) {
           console.debug('[Auth] Profile fetch not ok:', res.status);
         } else {
@@ -123,15 +118,12 @@ export function AuthProvider({ children }) {
   // Login function
   const login = async (credentials) => {
     try {
-      const response = await apiFetch(
-        'https://e-commerce-backend-d25l.onrender.com/api/users/login',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-          skipAuth: true,
-        }
-      );
+      const response = await apiFetch(buildApiUrl('api/users/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+        skipAuth: true,
+      });
 
       let data;
       try {
@@ -195,12 +187,9 @@ export function AuthProvider({ children }) {
       }
       // Attempt to fetch user profile (retry up to 2 times if it fails – cookies may not be available immediately)
       const attemptProfileFetch = async () => {
-        const res = await apiFetch(
-          'https://e-commerce-backend-d25l.onrender.com/api/users/profile',
-          {
-            token: sessionToken,
-          }
-        );
+        const res = await apiFetch(buildApiUrl('api/users/profile'), {
+          token: sessionToken,
+        });
         if (!res.ok) {
           throw new Error('profile_fetch_status_' + res.status);
         }
@@ -251,12 +240,9 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = async () => {
     try {
-      await apiFetch(
-        'https://e-commerce-backend-d25l.onrender.com/api/users/logout',
-        {
-          method: 'POST',
-        }
-      );
+      await apiFetch(buildApiUrl('api/users/logout'), {
+        method: 'POST',
+      });
 
       setUser(null);
       persistAuthToken(null);
@@ -289,16 +275,13 @@ export function AuthProvider({ children }) {
       // Log the token cookie before making the request
       console.log('Cookies before fetch:', document.cookie);
 
-      const response = await apiFetch(
-        'https://e-commerce-backend-d25l.onrender.com/api/cart',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productId, quantity }),
-        }
-      );
+      const response = await apiFetch(buildApiUrl('api/cart'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId, quantity }),
+      });
 
       const data = await response.json();
 
@@ -318,7 +301,7 @@ export function AuthProvider({ children }) {
   const updateCartItem = async (productId, quantity) => {
     try {
       const response = await apiFetch(
-        `https://e-commerce-backend-d25l.onrender.com/api/cart/update/${productId}`,
+        buildApiUrl(`api/cart/update/${productId}`),
         {
           method: 'POST',
           headers: {
@@ -374,7 +357,7 @@ export function AuthProvider({ children }) {
   const removeFromCart = async (productId) => {
     try {
       const response = await apiFetch(
-        `https://e-commerce-backend-d25l.onrender.com/api/cart/remove/${productId}`,
+        buildApiUrl(`api/cart/remove/${productId}`),
         {
           method: 'POST',
         }
